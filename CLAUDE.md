@@ -33,6 +33,19 @@ Card fields: `id`, `year` and `title` are **required**. Card ids must be unique 
 - `wikiTitle`, or `wiki` (a full URL), for the Danish Wikipedia link.
 - `prompt` is an image-generation prompt kept for reference. The game does not use it.
 
+## Content rules for cards (the user's standing preferences)
+
+- **Open source, always.** This is a rule, not a preference. Images, music and any copied text must have an open license (public domain, CC0, CC BY or CC BY-SA). Sources that are cited must be freely accessible online, with no paywall or login. That covers Danish educational publishers too: only cite their open material.
+- **A source for everything.** Every fact, image and piece of music must have a source. Nothing goes in without one.
+- **Sources on every card.** Each card's info text, shown behind the (?), must end with its source(s). That text is `tip` (or `more` on Jul cards), so the sources go at the end of that field.
+- **APA everywhere.** Write the sources in APA style, both on the cards (?) and in the "Kilder" dialog (`#wiki-credits` and set `credits`).
+- **Pick the best source available**, by tier:
+  - **S-tier:** official Danish sources: Børne- og Undervisningsministeriet, EMU (emu.dk), Danmarks Statistik (DST) and CFU. Also the subject guides (faghæfter) on EMU, above all the history guide: https://emu.dk/sites/default/files/2023-06/gsk_historie_fagh%C3%A6fte_2023.pdf. Also Danish educational publishers, both books and online material.
+  - **A-tier:** other recognised sources in language the pupils can easily read, such as museums or other countries' official authorities.
+  - **B-tier:** Wikipedia. Use it only when no S- or A-tier source covers the fact.
+- **Stay close to the sources.** Keep the card text as close to what the source says as possible, but in simple language for folkeskole pupils.
+- **General titles, concrete descriptions.** Players must be able to place a card without knowing the specific name. So when it is possible without bending the history, the `title` names the broader development and the `desc` or `tip` names the concrete event. Example: "Vikingerne angriber Lindisfarne" becomes "Vikingetiden begynder". The description still says that the attack on Lindisfarne in 793 was the first Viking raid on England and is counted as the start of the Viking Age.
+
 To add a set: create `sets/<id>.js` and `images/<id>/`, then add a `<script src="sets/<id>.js">` line before `sets/jul.js` or wherever it belongs in the menu. The set files mention a `LÆS MIG.txt` guide, but that file is **not** in this repo.
 
 ## Game features (in the bundle)
