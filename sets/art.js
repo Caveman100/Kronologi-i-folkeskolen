@@ -1,4 +1,4 @@
-// Kortsæt til Tidslinje. Se LÆS MIG.txt for hvordan man laver et nyt sæt.
+// Kortsæt til spillet Epoke. Se LÆS MIG.txt for hvordan man laver et nyt sæt.
 registerSet({
   id: "art",
   name: "Art",
