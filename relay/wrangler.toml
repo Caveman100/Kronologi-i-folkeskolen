@@ -1,0 +1,17 @@
+name = "epoke-relay"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+# Sider, der må bruge relayen (kommasepareret). localhost og 127.0.0.1 er altid tilladt.
+# "null" er en side åbnet direkte som fil (file://).
+ALLOWED_ORIGINS = "https://caveman100.github.io,null"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+# Gratisplanen kræver SQLite-baserede Durable Objects.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

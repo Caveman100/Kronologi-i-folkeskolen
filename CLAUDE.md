@@ -13,12 +13,14 @@ Planned editions: this one for schools comes first. Later there will be a casual
   - Lines ~698–835: the HTML screens (`scr-home`, `scr-local`, `scr-host`, `scr-join`, `scr-wait`, `scr-game`), overlays and dialogs (`ov-rules`, `deck-menu`, `year-dialog`, quit dialog).
   - Lines ~836–926: the **set registry** (`window.TimelineSets`, `registerSet`), written by hand and readable.
   - Lines ~927–930: `<script src="sets/*.js">` tags. Their order is the order of the "Vælg kortsæt" menu, and the first set is the default.
-  - Lines ~931–1409: the game itself, as a **minified esbuild bundle** with PeerJS inlined. The source for this bundle is not in the repo.
+  - A small config `<script>` just before the bundle sets `window.HIST_RELAY` and `window.EPOKE_RELAY_URL` (the online relay; see below).
+  - Lines ~931–1409: the game itself, as a **minified esbuild bundle** with PeerJS inlined. The source for this bundle is not in the repo. Inside it, a hand-written readable block (`roomSocket`, `keepAlive`, `RelayHost`, `RelayGuest`) is the relay client.
   - Lines ~1410–1412: the `#wiki-credits` dialog ("Kilder"). Its music and per-card image credits are hard-coded HTML.
   - End of file: the canvas snow effect for sets with `snow: true`.
 - `sets/*.js` hold the card sets. `sets/kanon.js` holds the 30 Historiekanon cards; they also appear in Classic through `include`. Each file calls `registerSet({...})`.
 - `images/<setId>/` holds the card images. The table and UI textures (`bord*.jpg`, `egetrae.jpg`, `kortbagside.jpg`, `titel.jpg`, `baggrund.jpg`) sit directly in `images/`.
 - `music/` holds the MP3s: home screen, Jul set, and others.
+- `relay/` holds the online relay: a Cloudflare Worker with one Durable Object per room (`relay/src/index.js`, `relay/wrangler.toml`, deploy guide in `relay/README.md`). It is deployed separately with `npx wrangler deploy`; GitHub Pages does not run it.
 
 ## Card sets (`sets/*.js`)
 
@@ -57,7 +59,7 @@ To add a set: create `sets/<id>.js` and `images/<id>/`, then add a `<script src=
 ## Game features (in the bundle)
 
 - Local hot-seat play, "Uendelig" (endless, one mistake ends the run, best score saved), and an optional year-guess dialog.
-- Online play via PeerJS (WebRTC) using a 4-letter room code that the host shares. If players lose the connection, they can rejoin with the same code.
+- Online play using a 4-letter room code that the host shares. If players lose the connection, they can rejoin with the same code. By default all traffic goes over WebSocket (HTTPS port 443) through the Cloudflare relay in `relay/`, so it works behind school firewalls; the relay generates the room code. `?relay=ws://localhost:8787/room` points at a local `wrangler dev`; `?relay=off` falls back to the old PeerJS (WebRTC) path. Relay and PeerJS clients cannot find each other. If you change the relay protocol, change the Worker and `RelayHost`/`RelayGuest` together and redeploy the Worker before pushing `index.html`.
 - Settings and scores are saved in `localStorage` under keys prefixed `htl-`.
 - Each set changes the look through body classes `set-<id>`, `set-bg` and `set-snow`, and the CSS variable `--set-bg`.
 
