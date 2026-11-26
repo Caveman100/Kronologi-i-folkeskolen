@@ -49,6 +49,7 @@
      DEL 23 · "DET ER DIN TUR"-BOKSEN
      DEL 24 · INFOBOKS VED KORTENE
      DEL 25 · SÆTTETS NAVN PÅ KORTENE
+     DEL 26 · RESULTATBOKSEN OVER TIDSLINJENS KORT
    ========================================================================== */
 
 
@@ -4190,4 +4191,14 @@ body.set-snow #scr-game .table>#set-snow {
   font-size: .56em;
   letter-spacing: .07em;
   line-height: 1.1;
+}
+
+/* ========================================================================
+   DEL 26 · RESULTATBOKSEN OVER TIDSLINJENS KORT
+   Boksen står midt på skærmen, lige over kortene på tidslinjen.
+   --res-top regnes ud af js/resultat-boks.js; uden den står boksen som før.
+   ======================================================================== */
+
+#controls:has(.verdict) {
+  top: var(--res-top, clamp(58px,8vh,76px));
 }

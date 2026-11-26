@@ -139,9 +139,16 @@
   function bar(p) {
     return '<span class="qbar" aria-hidden="true"><span class="qbar-right" style="width:' + (p.right * 100) + '%"></span><span class="qbar-exact" style="width:' + (p.exact * 100) + '%"></span></span>';
   }
-  function row(attrs, icon, name, sub, p) {
-    var done = p.right >= 1;
-    return '<button class="quiz-row' + (done ? ' done' : '') + '" ' + attrs + '>' + icon +
+  // Sæt med menuColor (fx Alineas orange) får samme farve som i "Vælg kortsæt".
+  // Andre sæt får det lyse pergament.
+  function look(d) {
+    if (!d) return "";
+    if (d.menuColor) return { cls: " set-accent", style: ' style="--set-accent:' + esc(d.menuColor) + '"' };
+    return "";
+  }
+  function row(attrs, icon, name, sub, p, d) {
+    var done = p.right >= 1, l = look(d) || { cls: "", style: "" };
+    return '<button class="quiz-row' + (done ? ' done' : '') + l.cls + '"' + l.style + ' ' + attrs + '>' + icon +
       '<span class="qr-main"><span class="qr-name">' + esc(name) + '</span>' + bar(p) +
       '<span class="qr-sub">' + sub + '</span></span>' +
       '<span class="qr-pct"><b>' + pct(p.right) + ' %</b>' + (p.exact > 0 ? '<small>★ ' + pct(p.exact) + ' %</small>' : '') + '</span>' +
@@ -150,7 +157,7 @@
   function renderCats() {
     $("#quiz-cats").innerHTML = categories().map(function (cat, i) {
       var n = cat.sets.length, sub = n === 1 ? cardCount(cat.sets[0].id) + " kort" : n + " quizzer";
-      return row('data-cat="' + i + '"', seal(cat.sets[0]), cat.name, sub, catProgress(cat));
+      return row('data-cat="' + i + '"', seal(cat.sets[0]), cat.name, sub, catProgress(cat), cat.sets[0]);
     }).join("");
   }
   var curCat = null, curSet = null;
@@ -158,7 +165,7 @@
     var cat = categories()[i]; curCat = i;
     $("#quizcat-title").textContent = cat.name;
     $("#quiz-sets").innerHTML = cat.sets.map(function (d) {
-      return row('data-set="' + esc(d.id) + '"', seal(d), d.name, cardCount(d.id) + " kort" + (d.description ? " · " + esc(d.description) : ""), progress(d.id));
+      return row('data-set="' + esc(d.id) + '"', seal(d), d.name, cardCount(d.id) + " kort" + (d.description ? " · " + esc(d.description) : ""), progress(d.id), d);
     }).join("");
   }
   function renderSet(setId) {

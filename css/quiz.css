@@ -85,6 +85,24 @@
 .quiz-row.done .qr-pct b { color: var(--quiz-done); }
 .qr-chev { font-size: 1.7rem; line-height: 1; color: #8f6a40; }
 
+/* Rækker med sættets farve fra "Vælg kortsæt" (menuColor i sætfilen, fx Alinea) */
+.quiz-row.set-accent {
+  background: rgba(var(--set-accent),.72);
+  border-color: color-mix(in srgb,rgb(var(--set-accent)) 80%,#000);
+  box-shadow: inset 0 0 16px rgba(40,15,0,.45);
+}
+.quiz-row.set-accent:hover { background: rgba(var(--set-accent),.9); border-color: color-mix(in srgb,rgb(var(--set-accent)) 50%,#000); }
+/* lys tekst og en lys bjælke på den farvede baggrund */
+.quiz-row.set-accent .qr-name { color: #fff6ea; }
+.quiz-row.set-accent .qr-sub { color: #fff1dd; }
+.quiz-row.set-accent .qr-pct b { color: #fff3dc; }
+.quiz-row.set-accent .qr-pct small { color: #f3d58e; }
+.quiz-row.set-accent .qr-chev { color: #f1dcae; }
+.quiz-row.set-accent .qbar { background: rgba(255,240,215,.28); box-shadow: inset 0 1px 2px rgba(0,0,0,.35); }
+.quiz-row.set-accent .qbar-right { background: #f6e7c8; }
+.quiz-row.set-accent.done .qr-pct b { color: #b9f0b0; }
+.quiz-row.set-accent.done .qbar-right { background: #9fdf95; }
+
 /* Den stablede bjælke: vinrød = rigtige, guld inden i = præcise årstal */
 .qbar {
   position: relative;

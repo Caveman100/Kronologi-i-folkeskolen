@@ -32,6 +32,7 @@ js/
   sne.js                Sne til kortsæt med snow: true
   tur-boks.js           Boksen "Det er turen til ..."
   kort-info.js          Boksen med kortets beskrivelse ved hover / langt tryk
+  resultat-boks.js      Sætter boksen "Rigtigt!"/"Forkert plads" lige over tidslinjens kort
   quiz.js               Quiz-menuerne, quizsiden, Lær og de gemte scorer
 sets/*.js               ★ Kortsættene: ét sæt pr. fil
 images/<sæt>/           Billeder til kortene i hvert sæt
@@ -59,7 +60,7 @@ Går noget galt, så tryk **F12** og se fanen **Console**. Fejl står med rødt.
 | Jeg vil ... | Ret i | Hvad |
 |---|---|---|
 | ændre hvor længe resultatet vises efter et svar | `indstillinger.js` | `visResultatMs` (millisekunder) |
-| ændre hvor længe resultatet vises, når man spiller alene (Quiz, Overlevelse) | `indstillinger.js` | `visResultatAleneMs` (millisekunder; tast eller klik går videre før) |
+| ændre hvor længe resultatet vises, når man spiller alene (Quiz, Overlevelse) | `indstillinger.js` | `visResultatAleneMs` (millisekunder) og `klikVidereAlene` (må et klik eller en tast gå videre før?) |
 | ændre hvor længe "Det er turen til ..." vises | `indstillinger.js` | `turBoksMs` |
 | give spillerne flere eller færre kort | `indstillinger.js` (standarden; spillerne kan selv vælge under Indstillinger) | `kortPaaHaanden` (Duel), `quizKortPaaHaanden` (Mestring og Overlevelse), `maksKortPaaHaanden` |
 | ændre antallet af byttekort | `indstillinger.js` | `byttekort` |
@@ -67,6 +68,7 @@ Går noget galt, så tryk **F12** og se fanen **Console**. Fejl står med rødt.
 | ændre antal forsøg pr. kort i Quiz | `indstillinger.js` | `quizForsoeg` |
 | samle kortsæt i én Quiz-kategori | `sets/<sæt>.js` | `quizCategory: "Navn"` (og evt. `quizIcon`) |
 | skrue op eller ned for musikken | `indstillinger.js` | `musikStyrke` (0 til 1) |
+| bestemme om lyden er slået til, første gang man åbner spillet | `indstillinger.js` | `lydTilSomStandard` (true/false) |
 | skrue op eller ned for forsidemusikken | `indstillinger.js` | `forsideMusikStyrke` (0 til 1) |
 | ændre en farve | `css/indstillinger.css` | fx `--gold` |
 | gøre kortene større eller mindre | `indstillinger.js` | `kortStoerrelse` (procent; de præcise grænser står i `css/indstillinger.css`: `--hw`, `--tw`, `--ow`) |

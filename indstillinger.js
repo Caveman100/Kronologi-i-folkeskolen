@@ -17,13 +17,20 @@ window.EPOKE_INDSTILLINGER = {
 
   /* ----- Tider ----- */
 
-  // Hvor længe resultatet ("Rigtigt!" / "Forkert plads") og kortets
-  // beskrivelse vises efter et svar, før turen automatisk går videre.
-  visResultatMs: 4800,
+  // Hvor længe resultatet ("Rigtigt!" / "Forkert") vises efter et svar,
+  // før turen automatisk går videre. (Før: 4800)
+  visResultatMs: 2000,
 
-  // Det samme, når man spiller alene (Quiz, Overlevelse, Øv fejl). Her går
-  // spillet også videre, så snart spilleren trykker på en tast eller klikker.
-  visResultatAleneMs: 10000,
+  // Det samme, når man spiller alene (Quiz, Overlevelse, Øv fejl). (Før: 10000)
+  visResultatAleneMs: 2000,
+
+  // Må man gå videre med det samme ved at klikke eller trykke på en tast,
+  // når man spiller alene? true = ja, false = nej (turen skifter kun af sig selv).
+  klikVidereAlene: false,
+
+  // Afstand i pixels mellem resultatboksen ("Rigtigt!" / "Forkert plads")
+  // og kortene på tidslinjen. Boksen står lige over kortene.
+  resultatAfstandPx: 10,
 
   // Hvor længe boksen "Det er turen til ..." vises, når turen skifter
   // (kun når der er 2 eller flere spillere).
@@ -56,7 +63,7 @@ window.EPOKE_INDSTILLINGER = {
   kortStoerrelse: {
     egne: 100,        // dine egne kort på hånden
     tidslinje: 100,   // kortene på tidslinjen
-    modspiller: 100,  // modspillernes kort (100 = ca. 80 % af arealet af dine egne)
+    modspiller: 90,  // modspillernes kort (100 = ca. 80 % af arealet af dine egne)
   },
 
   /* ----- Nyt spil ----- */
@@ -102,6 +109,12 @@ window.EPOKE_INDSTILLINGER = {
   fasteStartkort: ["jul"],
 
   /* ----- Lyd ----- */
+
+  // Er lyden (musik og lydeffekter) slået til, første gang man åbner spillet?
+  // true = til, false = fra. Når en spiller selv trykker på lydknappen, husker
+  // browseren valget, og det går forud for denne indstilling.
+  // (Browsere spiller først lyd, når man har klikket eller trykket på siden.)
+  lydTilSomStandard: false,
 
   // Musikkens lydstyrke, fra 0 (slukket) til 1 (fuld styrke).
   musikStyrke: 0.3,
