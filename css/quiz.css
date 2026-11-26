@@ -1,0 +1,219 @@
+/* ==========================================================================
+   QUIZ  (css/quiz.css)
+   Udseendet af "Spil sammen"-skærmen og quizskærmene (js/quiz.js).
+   ========================================================================== */
+
+:root {
+  --quiz-right: #6a2119;       /* bjælken: rigtige kort (mørk vinrød) */
+  --quiz-exact: #d6a23a;       /* bjælken: præcise årstal (lyst guld, tydeligt lysere end vinrød) */
+  --quiz-track: #b896663d;     /* bjælken: resten */
+  --quiz-done: #275238;        /* procenttallet ved 100 % */
+}
+
+/* ── Forsiden: overskriften "Før eller efter?" (lidt mindre end det gamle "Epoke", så den kan stå på én linje) ── */
+.logo.logo-title { font-size: clamp(2.2rem,min(4.6vw,8vh),3.6rem) !important; }
+.logo.logo-title span { font-size: 1em; white-space: nowrap; }
+
+/* ── Indstillinger ── */
+.settings-players { flex-direction: column; gap: 2px; margin-top: 0; }
+.settings-players small { font: 500 .85rem var(--serif); opacity: .85; }
+.settings-sets { display: flex; flex-direction: column; gap: 8px; }
+.settings-set {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fff6de8c;
+  border: 1px solid #b69970;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.settings-set:hover { background: #fff6de; }
+.settings-set input { width: 22px; height: 22px; accent-color: #6a2119; flex: none; }
+.settings-set strong { display: block; font: 400 1.2rem/1.1 var(--fell); color: #4a2419; }
+.settings-set small { font: 500 .88rem var(--serif); color: #65503b; }
+
+/* ── Quizpaneler ── */
+.quiz-panel { width: min(640px,100%); }
+.quiz-list { display: flex; flex-direction: column; gap: 10px; }
+
+.quiz-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  color: #382719;
+  background: #fff6de8c;
+  border: 1px solid #b69970;
+  border-radius: 3px;
+  box-shadow: inset 0 0 14px #a6784022;
+  transition: background .15s,border-color .15s;
+}
+.quiz-row:hover { background: #fff6de; border-color: #8f6435; }
+
+.qr-seal {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  font: 700 1.25rem/1 var(--display);
+  color: #f1dcae;
+  background: radial-gradient(circle at 35% 30%,#8a3328,#5a1a14 70%);
+  box-shadow: inset 0 0 0 2px #3a0f0b,inset 0 0 0 3px #c39a5c99,0 2px 4px #301a1055;
+}
+
+.qr-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.qr-name { font: 400 1.3rem/1.1 var(--fell); color: #4a2419; }
+.qr-sub { font: 500 .86rem/1.25 var(--serif); color: #65503b; }
+
+.qr-pct { display: flex; flex-direction: column; align-items: flex-end; min-width: 3.6em; }
+.qr-pct b { font: 700 1.2rem/1.1 var(--display); color: var(--quiz-right); }
+.qr-pct small { font: 600 .78rem/1.3 var(--serif); color: #8a5a17; white-space: nowrap; }
+.quiz-row.done .qr-pct b { color: var(--quiz-done); }
+.qr-chev { font-size: 1.7rem; line-height: 1; color: #8f6a40; }
+
+/* Den stablede bjælke: vinrød = rigtige, guld inden i = præcise årstal */
+.qbar {
+  position: relative;
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--quiz-track);
+  box-shadow: inset 0 1px 2px #5a3a1a44;
+  overflow: hidden;
+}
+.qbar-right,
+.qbar-exact { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.qbar-right { background: var(--quiz-right); }
+.qbar-exact { background: linear-gradient(180deg,#e9bd5c,var(--quiz-exact)); box-shadow: inset 0 0 0 1px #6a211955; }
+.quiz-row.done .qbar-right { background: var(--quiz-done); }
+
+/* ── Quizsiden ── */
+.quiz-meta { margin: -6px 0 6px; color: #5a4532; font-size: 1.02rem; }
+.quiz-count {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: #c5a77d55;
+  border: 1px solid #b69970;
+  font: 700 .9rem/1.5 var(--display);
+  color: #4a2419;
+}
+.quiz-best { display: flex; flex-direction: column; gap: 8px; }
+.qb-row {
+  display: grid;
+  grid-template-columns: 8.5em 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fff6de8c;
+  border: 1px solid #b69970;
+  border-radius: 3px;
+}
+.qb-mode { font: 700 .82rem/1.2 var(--display); letter-spacing: .05em; text-transform: uppercase; color: #6b3f28; }
+.qb-main { display: flex; flex-direction: column; gap: 6px; }
+.qb-nums { font: 500 .95rem/1.3 var(--serif); color: #453022; }
+.qb-nums b { color: var(--quiz-right); }
+.qb-frac { font: 700 1.4rem/1 var(--display); color: #4a2419; }
+.qb-frac b { font-size: 1.7rem; color: var(--quiz-right); }
+.qb-none { font-style: italic; color: #715d49; }
+
+.quiz-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; }
+.quiz-play { min-width: 12em; padding: 14px 34px; font-size: 1.3rem; }
+.quiz-actions-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.quiz-actions-row .btn { min-width: 9em; }
+
+@media (max-width: 520px) {
+  .quiz-row { gap: 10px; padding: 10px; }
+  .qr-seal { width: 38px; height: 38px; font-size: 1.05rem; }
+  .qr-name { font-size: 1.12rem; }
+  .qb-row { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ── Fremgang øverst i Quiz ── */
+.home-progress {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border: 1px solid #b69970;
+  border-radius: 3px;
+  background: #c5a77d33;
+}
+.home-progress .hp-label { font: 700 .78rem/1.2 var(--display); letter-spacing: .06em; text-transform: uppercase; color: #6b3f28; }
+.home-progress .hp-nums { font: 500 .95rem/1.2 var(--serif); color: #453022; white-space: nowrap; }
+.home-progress .hp-nums b { font: 700 1.05rem var(--display); color: var(--quiz-right); }
+.home-progress .qbar { grid-column: 1 / -1; grid-row: 2; }
+
+/* ── Spillet i quiztilstand ── */
+body.quiz-mode #hand-label > small { display: none; }
+.quiz-hud { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-left: 12px; font: 600 .9rem/1.2 var(--serif); }
+.qh-practice { padding: 0 8px; border-radius: 999px; background: #d6a23a; color: #2a1a06; font-weight: 700; }
+.qh-time { font-variant-numeric: tabular-nums; }
+.qh-tries { display: inline-flex; gap: 4px; }
+.qh-tries i { width: 10px; height: 10px; border-radius: 50%; background: #43c584; box-shadow: 0 0 0 1px #0006; }
+.qh-tries i.used { background: #e8574b; }
+
+/* Pladser, man har prøvet: rødt kryds (samme stil som en forkert plads) */
+#timeline .slot.quiz-tried { width: 42px; }
+#timeline .slot.quiz-tried .pl { border: 2px dashed var(--bad); background: rgba(232,87,75,.14); }
+#timeline .slot.quiz-tried .pl span { opacity: 1; color: var(--bad); font-weight: 700; }
+/* Den rigtige plads efter sidste forsøg: som den gule markering, bare grøn */
+#timeline .slot.quiz-green,
+.dragging #timeline .slot.quiz-green { width: calc(var(--tw)*.95); }
+#timeline .slot.quiz-green .pl,
+.dragging #timeline .slot.quiz-green .pl {
+  border: 2px dashed #6fe0a2;
+  background: rgba(67,197,132,.24);
+  box-shadow: 0 0 26px rgba(67,197,132,.6);
+  align-content: center;
+  animation: quiz-green-pulse 1.4s ease-in-out infinite;
+}
+#timeline .slot.quiz-green .pl span { opacity: 1; color: #bff5d6; font: bold 1rem var(--display); }
+@keyframes quiz-green-pulse { 50% { box-shadow: 0 0 40px rgba(67,197,132,.9); } }
+
+/* ── Slutskærmen ── */
+.quiz-end { width: min(420px,100%); margin: 10px auto 6px; }
+.quiz-end .qbar { height: 14px; border-radius: 7px; }
+.quiz-end p { margin: 8px 0 0; }
+.quiz-end-frac { font: 700 1.6rem/1 var(--display); margin: 6px 0; }
+.quiz-end-frac b { font-size: 2.3rem; }
+
+/* ── Lær ── */
+.learn-panel { width: min(720px,100%); }
+.learn-list { list-style: none; margin: 14px 0 0; padding: 0; position: relative; }
+.learn-list::before { content: ""; position: absolute; left: calc(6.2em + 9px); top: 6px; bottom: 6px; width: 3px; background: #b6997088; border-radius: 2px; }
+.learn-row {
+  display: grid;
+  grid-template-columns: 6.2em 18px 96px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 6px;
+  text-align: left;
+  color: #382719;
+  border-radius: 3px;
+}
+.learn-row:hover { background: #fff6de99; }
+.learn-year { font: 700 1rem/1.15 var(--display); color: #6a2119; text-align: right; }
+.learn-year small { display: block; font: italic 500 .8rem var(--serif); color: #65503b; }
+.learn-dot { width: 14px; height: 14px; border-radius: 50%; background: #6a2119; box-shadow: 0 0 0 3px #f3e1c2,0 0 0 4px #b69970; position: relative; z-index: 1; justify-self: center; }
+.learn-card { pointer-events: none; }
+.learn-card .pc { --w: 96px; }
+.learn-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.learn-text b { font: 400 1.15rem/1.15 var(--fell); color: #4a2419; }
+.learn-text span { font: 500 .92rem/1.3 var(--serif); color: #453022; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+@media (max-width: 520px) {
+  .learn-row { grid-template-columns: 4.6em 14px 1fr; }
+  .learn-list::before { left: calc(4.6em + 7px); }
+  .learn-card { display: none; }
+  .learn-year { font-size: .9rem; }
+}

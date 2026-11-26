@@ -1,0 +1,4193 @@
+/* ==========================================================================
+   SPILLETS UDSEENDE  (css/spil.css)
+   ==========================================================================
+
+   Farver, skrifttyper, billeder og kortstørrelser står i css/indstillinger.css.
+   Det er normalt dér, man skal ændre noget.
+
+   Hvordan CSS læses (for dig, der kender Python eller R):
+   - En regel består af en "selektor", der vælger elementer på siden, og en
+     liste af egenskaber i { }. Eksempel:
+         .pc-title { font-size: 1.02em; }
+     betyder: "alle elementer med klassen pc-title får skriftstørrelse 1.02".
+     .navn = klasse, #navn = ét bestemt element (id), mellemrum = "inde i".
+   - Gælder flere regler for det samme, vinder den mest specifikke selektor.
+     Er de lige specifikke, vinder den, der står længst nede i filen.
+     !important vinder over alt andet.
+   - @media (max-width:600px) { ... } gælder kun på skærme, der højst er 600 px brede.
+   - Måleenheder: px = pixels, em/rem = i forhold til skriftstørrelsen,
+     vh/vw = procent af skærmens højde/bredde.
+
+   Filen er bygget op i lag: DEL 1 er det oprindelige design, og hver senere
+   del justerer det. Rækkefølgen betyder derfor noget, og delene må ikke
+   flyttes rundt. Vil du ændre noget, så søg efter selektoren (fx ".pc-title")
+   og ret den SIDSTE forekomst i filen; den er den, der vinder.
+
+   Indhold:
+     DEL 1 · GRUNDLAG
+     DEL 2 · KORTBILLEDER OG TRÆK
+     DEL 3 · LØFTEDE KORT, HÅND OG ÅRSTALSDIALOG
+     DEL 4 · KORTENES INDRE OPBYGNING OG PLADSERNE PÅ TIDSLINJEN
+     DEL 5 · TEMA: GAMMELT PAPIR, TRÆ OG LÆDER
+     DEL 6 · EGETRÆSBORD OG MENUEN "VÆLG KORTSÆT"
+     DEL 7 · PLACERING OG "FORSIDE"-KNAPPEN
+     DEL 8 · STØRRE KORT, BORDET, (?)-KNAP OG INFO-VINDUER
+     DEL 9 · KORTFORSIDE, ÅRSTALSFELT OG KASSÉR-KRYDS
+     DEL 10 · RESULTATBOKSEN
+     DEL 11 · SPILLERFARVER
+     DEL 12 · FORSIDENS STØRRELSE
+     DEL 13 · RAMMEN OM TIDSLINJEN
+     DEL 14 · KNAPPERNE ØVERST I SPILLET
+     DEL 15 · HISTORIEKANON-KORT
+     DEL 16 · BYT-IKONET
+     DEL 17 · BYT-BOKSENS PLACERING
+     DEL 18 · MØRKE MØNSTERRAMMER
+     DEL 19 · BYT KORT MED EN MODSPILLER
+     DEL 20 · MENUKNAPPERNE PÅ FORSIDEN
+     DEL 21 · KORTENES SKYGGE OG LYDKNAPPEN
+     DEL 22 · KORTSÆT MED EGEN BAGGRUND ELLER SNE
+     DEL 23 · "DET ER DIN TUR"-BOKSEN
+     DEL 24 · INFOBOKS VED KORTENE
+     DEL 25 · SÆTTETS NAVN PÅ KORTENE
+   ========================================================================== */
+
+
+/* ========================================================================
+   DEL 1 · GRUNDLAG
+   Det oprindelige design: skærmene, knapper, forsiden, opsætning,
+   spillebordet, spillekortene, tidslinjen, hånden, overlays og mobil-tilpasning.
+   Mange af reglerne her bliver justeret af de senere dele.
+   ======================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  font-size: 17px;
+}
+
+body {
+  font-weight: 500;
+}
+
+body {
+  font-family: var(--ui);
+  color: var(--text);
+  background: var(--ink);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+#bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .06;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Skærme (forside, opsætning, spil ...) ── */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: none;
+  overflow: auto;
+  padding: max(16px,env(safe-area-inset-top)) 16px 16px;
+}
+
+.screen.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scr-game.show {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+}
+
+.panel {
+  background: linear-gradient(180deg,rgba(26,33,50,.92),rgba(16,21,33,.94));
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.setup {
+  width: min(620px,100%);
+  padding: 30px 30px 28px;
+  margin: auto;
+}
+
+.setup.narrow {
+  width: min(440px,100%);
+}
+
+.setup.center {
+  text-align: center;
+}
+
+.setup h2,
+.rules h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.65rem;
+  color: var(--gold2);
+  margin: 6px 0 18px;
+  letter-spacing: .5px;
+}
+
+.label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 16px 0 8px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.back {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  color: var(--muted);
+  font-size: .85rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.back:hover {
+  color: var(--text);
+  background: rgba(255,255,255,.06);
+}
+
+input[type=text],
+input:not([type]) {
+  width: 100%;
+  background: rgba(0,0,0,.28);
+  border: 1.5px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  padding: 11px 14px;
+  outline: none;
+  transition: .2s;
+}
+
+input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(217,168,66,.15);
+}
+
+/* Knapper */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+  background: rgba(255,255,255,.06);
+  border: 1.5px solid rgba(255,255,255,.14);
+  transition: transform .15s,box-shadow .2s,background .2s,border-color .2s;
+  position: relative;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(217,168,66,.6);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn.gold {
+  background: linear-gradient(135deg,#f0cb6c,#c28a28 55%,#9a6618);
+  color: #2a1a06;
+  border-color: #f6d98a;
+  box-shadow: 0 10px 30px rgba(217,168,66,.35),inset 0 1px 0 rgba(255,255,255,.5);
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.btn.gold:hover {
+  box-shadow: 0 14px 40px rgba(217,168,66,.5),inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+.btn:disabled {
+  opacity: .45;
+  pointer-events: none;
+}
+
+.btn.wide {
+  width: 100%;
+  margin-top: 22px;
+  padding: 15px;
+  font-size: 1.1rem;
+}
+
+.btn.big {
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 16px 20px 14px 64px;
+  font-size: 1.08rem;
+  width: 100%;
+}
+
+.btn.big .ic {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+}
+
+.btn.big small {
+  font-family: var(--ui);
+  font-weight: 500;
+  font-size: .78rem;
+  opacity: .7;
+  letter-spacing: 0;
+}
+
+.link-btn {
+  color: var(--gold2);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-top: 14px;
+}
+
+.link-btn:hover {
+  background: rgba(217,168,66,.12);
+}
+
+.link-btn.small {
+  font-size: .82rem;
+  margin-top: 6px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--gold2);
+}
+
+.icon-btn:hover {
+  background: rgba(255,255,255,.12);
+}
+
+/* ── Forsiden ── */
+
+.hero {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 120px rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+}
+
+.hero-art {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-art::after {
+  content: "";
+  position: absolute;
+  right: -1%;
+  top: 50%;
+}
+
+@keyframes turn {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.orbit {
+  position: absolute;
+  right: -1%;
+  top: 50%;
+  width: 52%;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  pointer-events: none;
+  animation: spin 90s linear infinite;
+}
+
+.orbit span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: clamp(1.6rem,3.2vw,2.6rem);
+  transform: rotate(var(--a)) translate(calc(min(26vw,270px))) rotate(calc(-1 * var(--a)));
+  margin: -.6em;
+  filter: drop-shadow(0 0 14px rgba(243,210,126,.35));
+  opacity: .85;
+}
+
+.orbit .core {
+  transform: none;
+  font-size: clamp(4rem,9vw,7rem);
+  filter: drop-shadow(0 0 40px rgba(243,210,126,.7));
+  opacity: 1;
+  margin: -.62em -.5em;
+  animation: spin 90s linear infinite reverse;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.orbit .core {
+  animation-name: spinr;
+}
+
+@keyframes spinr {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+body.has-titel .orbit {
+  display: none;
+}
+
+@media (min-width:821px) {
+  .hourglass {
+    display: none;
+  }
+}
+
+@media (max-width:820px) {
+  .orbit {
+    opacity: .25;
+    right: -40%;
+    width: 110%;
+  }
+}
+
+.hero-inner {
+  position: relative;
+  padding: 48px clamp(24px,6vw,64px);
+  max-width: 560px;
+}
+
+.hourglass {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 0 18px rgba(243,210,126,.6));
+  margin-bottom: 6px;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-6px) rotate(-6deg);
+  }
+}
+
+.logo {
+  font-family: var(--display);
+  font-weight: 900;
+  line-height: .95;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,.6));
+}
+
+.logo span {
+  font-size: 1.12em;
+}
+
+.tagline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  margin: 16px 0 28px;
+  line-height: 1.35;
+}
+
+.home-buttons {
+  display: grid;
+}
+
+/* ── Opsætning (vælg spillere, online) ── */
+
+.seg {
+  display: flex;
+  gap: 6px;
+  background: rgba(0,0,0,.25);
+  padding: 5px;
+  border-radius: 14px;
+  flex-wrap: wrap;
+}
+
+.seg button {
+  flex: 1;
+  min-width: 44px;
+  padding: 9px 8px;
+  font-weight: 600;
+  transition: .2s;
+  font-size: .9rem;
+}
+
+.seg button.on {
+  background: linear-gradient(135deg,#f0cb6c,#b98226);
+  color: #2a1a06;
+  box-shadow: 0 4px 14px rgba(217,168,66,.35);
+}
+
+.player-rows {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.prow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.prow .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.prow input {
+  flex: 1;
+}
+
+.avatar-pick {
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  background: radial-gradient(circle at 35% 30%,#3a4256,#1a2030);
+  border: 2px solid rgba(255,255,255,.12);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  transition: .15s;
+}
+
+.av img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+button.av:hover {
+  transform: scale(1.08);
+}
+
+.prow .avatar-pick .av {
+  width: 36px;
+  height: 36px;
+  font-size: 1.05rem;
+}
+
+.me-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.me-row input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.settings {
+  margin-top: 6px;
+}
+
+.settings .row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.settings input[type=range] {
+  flex: 1;
+  accent-color: var(--gold);
+}
+
+.settings .val {
+  min-width: 96px;
+  text-align: right;
+  font-family: var(--display);
+  color: var(--gold2);
+  font-weight: 700;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: .92rem;
+  cursor: pointer;
+  color: #d8d0bd;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+}
+
+/* Vært (online spil) */
+
+.code-box {
+  text-align: center;
+  padding: 16px;
+  margin-bottom: 6px;
+  background-image: linear-gradient(rgba(10,14,22,.7),rgba(10,14,22,.85)),var(--img-lobby);
+  background-size: cover;
+  background-position: center;
+}
+
+.code-box .label {
+  margin-top: 0;
+}
+
+.code {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 3.2rem;
+  letter-spacing: .35em;
+  padding-left: .35em;
+  color: var(--gold2);
+  text-shadow: 0 0 30px rgba(217,168,66,.45);
+}
+
+.code-status {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.lobby-list {
+  display: grid;
+  gap: 8px;
+}
+
+.lobby-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 8px 12px;
+  animation: pop .35s ease;
+}
+
+.lobby-item .nm {
+  flex: 1;
+  font-weight: 600;
+  text-align: left;
+}
+
+.lobby-item .tag {
+  font-size: .72rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lobby-item .off {
+  color: var(--bad);
+}
+
+.lobby-item .kick {
+  color: var(--muted);
+  font-size: .8rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.lobby-item .kick:hover {
+  color: var(--bad);
+  background: rgba(232,87,75,.1);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(.9);
+    opacity: 0;
+  }
+}
+
+.code-input {
+  text-align: center;
+  font-family: var(--display);
+  font-size: 2rem !important;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.join-msg {
+  min-height: 1.3em;
+  margin-top: 12px;
+  font-size: .88rem;
+  color: var(--gold2);
+}
+
+.join-msg.err {
+  color: var(--bad);
+}
+
+.spin-glass {
+  font-size: 3rem;
+  animation: flip 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes flip {
+  0%,
+  40% {
+    transform: rotate(0);
+  }
+  50%,
+  90% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.settings-summary {
+  margin-top: 14px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+/* ── Spillet ── */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  padding-top: max(8px,env(safe-area-inset-top));
+  border-bottom: 1px solid rgba(217,168,66,.15);
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+.brand {
+  font-family: var(--display);
+  font-size: 1rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.brand b {
+  color: var(--gold2);
+}
+
+.scores {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 3px 2px;
+}
+
+.scores::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 11px 3px 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: 1.5px solid rgba(255,255,255,.08);
+  white-space: nowrap;
+  transition: .3s;
+  flex-shrink: 0;
+}
+
+.chip .av {
+  width: 28px;
+  height: 28px;
+  font-size: .9rem;
+  border-width: 2px;
+}
+
+.chip .nm {
+  font-size: .84rem;
+  font-weight: 600;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip .pts {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--gold2);
+  font-size: .95rem;
+}
+
+.chip .cnt {
+  font-size: .72rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.chip.active {
+  border-color: var(--c);
+}
+
+.chip.off {
+  opacity: .45;
+}
+
+.chip.bump .pts {
+  animation: bump .6s ease;
+}
+
+@keyframes bump {
+  40% {
+    transform: scale(1.6);
+    color: #fff;
+  }
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.net-pill {
+  font-size: .75rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(67,197,132,.12);
+  border: 1px solid rgba(67,197,132,.4);
+  color: #9be6bf;
+  white-space: nowrap;
+}
+
+.net-pill.bad {
+  background: rgba(232,87,75,.12);
+  border-color: rgba(232,87,75,.5);
+  color: #ffb3ab;
+}
+
+.deck-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--gold2);
+}
+
+.mini-back {
+  width: 22px;
+  height: 31px;
+  border-radius: 4px;
+  border: 1.5px solid var(--gold);
+  box-shadow: 2px 2px 0 #2a1f10,4px 4px 0 rgba(217,168,66,.4);
+  background: var(--img-kortbagside) center/cover,#1b2747;
+}
+
+.table {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── SPILLEKORT ── */
+
+.pc {
+  --w: 120px;
+  --fr: #1f2d55;
+  --fr2: #141d3a;
+  --tc: #1f2d55;
+  width: var(--w);
+  height: calc(var(--w) * 1.4);
+  font-size: calc(var(--w) / 10);
+  flex-shrink: 0;
+  border-radius: .8em;
+  background: radial-gradient(circle,rgba(255,255,255,.09) .07em,transparent .09em) 0 0/.8em .8em,linear-gradient(160deg,var(--fr),var(--fr2));
+  transition: transform .18s ease,box-shadow .18s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pc::before {
+  content: "";
+  position: absolute;
+  inset: .2em;
+  border-radius: .68em;
+  border: .07em solid rgba(217,168,66,.75);
+  pointer-events: none;
+}
+
+.pc.canon {
+  --fr: #7c1a24;
+  --fr2: #4e0f16;
+}
+
+.pc.canon.pc-front .pc-title {
+  padding-right: .9em;
+  padding-left: .4em;
+}
+
+.pc-in {
+  position: absolute;
+  inset: .42em;
+  border-radius: .55em;
+  border: .12em solid #c9a24a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .45em .42em .35em;
+  overflow: hidden;
+}
+
+.pc-title {
+  font-family: var(--fell);
+  font-weight: 400;
+  color: var(--tc);
+  font-size: 1.08em;
+  line-height: 1.02;
+  text-align: center;
+  height: 2.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  letter-spacing: .01em;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.pc-img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/2.75;
+  margin: .28em 0 .22em;
+  border-radius: .45em;
+  border: .13em solid #c9a24a;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 50% 40%,var(--b),var(--a));
+}
+
+.pc-img .emo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2.7em;
+  filter: drop-shadow(0 .1em .25em rgba(0,0,0,.45));
+}
+
+.pc-img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pc-tip {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: .7em;
+  line-height: 1.13;
+  color: #2e2012;
+  overflow: hidden;
+  padding: 0 .1em;
+}
+
+.pc-tip span {
+  display: block;
+}
+
+.pc-tipbtn {
+  font-weight: 800;
+  font-size: 1.15em;
+  color: #7a5a12;
+  background: rgba(201,162,74,.18);
+  border: .1em dashed rgba(160,120,40,.7);
+  border-radius: 999px;
+  padding: .3em .9em;
+  cursor: pointer;
+}
+
+.pc-tipbtn:hover {
+  background: rgba(201,162,74,.35);
+}
+
+.pc-seal {
+  position: absolute;
+  top: -.25em;
+  right: -.25em;
+  width: 2.1em;
+  height: 2.1em;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1em;
+  z-index: 3;
+  background: radial-gradient(circle at 35% 30%,#e0574a,#9b1c16 60%,#6b0f0b);
+  box-shadow: 0 .15em .4em rgba(0,0,0,.5),inset 0 0 0 .14em rgba(255,255,255,.15);
+  transform: rotate(-10deg);
+}
+
+.pc-seal img {
+  position: absolute;
+  inset: -.15em;
+  width: calc(100% + .3em);
+  height: calc(100% + .3em);
+  object-fit: contain;
+}
+
+.pc-canon {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .42em;
+  letter-spacing: .12em;
+  color: #7c1a24;
+  text-transform: uppercase;
+  margin-top: .2em;
+  flex-shrink: 0;
+}
+
+/* årstalsside */
+
+.pc-year .pc-in {
+  padding-top: .4em;
+}
+
+.pc-year .pc-img {
+  width: 86%;
+  aspect-ratio: 4/3;
+  margin: 0 0 .25em;
+}
+
+.pc-title>span {
+  display: block;
+  max-width: 100%;
+}
+
+.pc-year .pc-in {
+  justify-content: flex-start;
+}
+
+.pc-rule {
+  width: 40%;
+  height: .08em;
+  background: #c9a24a;
+  margin: .25em 0 .15em;
+  flex-shrink: 0;
+}
+
+.pc-yr {
+  font-family: var(--display);
+  font-weight: 900;
+  color: var(--tc);
+  font-size: 1.6em;
+  line-height: 1;
+  white-space: nowrap;
+  margin-top: .1em;
+}
+
+.pc-yr.long {
+  font-size: 1.12em;
+}
+
+.pc-era {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .42em;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #7a5a12;
+  margin-top: auto;
+  padding-top: .3em;
+  text-align: center;
+}
+
+.pc .by {
+  position: absolute;
+  bottom: -.3em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 50%;
+  border: .14em solid #fff;
+  z-index: 3;
+  box-shadow: 0 .1em .3em rgba(0,0,0,.6);
+}
+
+.pc .mk {
+  position: absolute;
+  top: -.3em;
+  left: -.3em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .8em;
+  font-weight: 900;
+  color: #fff;
+  z-index: 3;
+  box-shadow: 0 .1em .3em rgba(0,0,0,.5);
+}
+
+.pc .mk.ok {
+  background: var(--ok);
+}
+
+.pc .mk.bad {
+  background: var(--bad);
+}
+
+/* tilstande */
+
+.pc.click {
+  cursor: pointer;
+}
+
+.pc.click:hover {
+  transform: translateY(-.7em);
+  box-shadow: 0 .8em 1.6em rgba(0,0,0,.55),0 0 0 .14em var(--gold2);
+}
+
+.pc.sel {
+  transform: translateY(-1.5em);
+  box-shadow: 0 0 0 .2em var(--gold2),0 0 1.8em rgba(243,210,126,.7),0 1em 2em rgba(0,0,0,.6);
+}
+
+.pc.sel.click:hover {
+  transform: translateY(-1.7em);
+}
+
+.pc.give {
+  transform: translateY(-1em);
+  box-shadow: 0 0 0 .22em #e8a33a,0 0 1.6em rgba(232,163,58,.7);
+}
+
+.pc.take {
+  transform: translateY(.6em);
+  box-shadow: 0 0 0 .22em #36c0c0,0 0 1.6em rgba(54,192,192,.7);
+}
+
+.pc.watchsel {
+  transform: translateY(.5em);
+  box-shadow: 0 0 0 .2em var(--c),0 0 1.4em var(--c);
+}
+
+.pc.flash {
+  animation: swapflash 1.2s ease;
+}
+
+@keyframes swapflash {
+  0% {
+    transform: scale(.5) rotate(-14deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.pc.flipin {
+  animation: flipin .9s cubic-bezier(.2,1.2,.4,1);
+}
+
+@keyframes flipin {
+  0% {
+    transform: translateY(-60px) rotateY(90deg) scale(1.2);
+    opacity: .3;
+  }
+  50% {
+    transform: translateY(-10px) rotateY(0) scale(1.15);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.pc.okc {
+  box-shadow: 0 0 0 .22em var(--ok),0 0 2em rgba(67,197,132,.75);
+}
+
+.pc.badc {
+  box-shadow: 0 0 0 .22em var(--bad),0 0 2em rgba(232,87,75,.75);
+}
+
+.pc-back {
+  background: var(--img-kortbagside) center/cover,radial-gradient(circle,#2d3f6e,#16203d);
+}
+
+.pc-back::before {
+  display: none;
+}
+
+/* ── Zoom ── */
+
+#zoom {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(.92);
+  transition: opacity .14s,transform .14s;
+  filter: drop-shadow(0 20px 50px rgba(0,0,0,.7));
+}
+
+#zoom.show {
+  opacity: 1;
+  transform: none;
+}
+
+#zoom .pc {
+  transition: none;
+  transform: none !important;
+}
+
+/* ── MODSPILLERE (øverst) ── */
+
+.opps {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  justify-content: safe center;
+}
+
+.opp {
+  flex-shrink: 0;
+  background: rgba(9,13,22,.72);
+  border: 1px solid rgba(255,255,255,.08);
+  border-top: 3px solid var(--c);
+  border-radius: 14px;
+  padding: 6px 10px 10px;
+  transition: .3s;
+}
+
+.opp.turn {
+  border-color: var(--c);
+  box-shadow: 0 0 24px -6px var(--c);
+  background: rgba(20,24,36,.85);
+}
+
+.oh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.oh .av {
+  width: 24px;
+  height: 24px;
+  font-size: .75rem;
+  border-color: var(--c);
+}
+
+.oh .nm {
+  font-weight: 700;
+  font-size: .85rem;
+}
+
+.oh small {
+  color: var(--muted);
+  font-size: .74rem;
+}
+
+.oh .sc {
+  font-family: var(--display);
+  color: var(--gold2);
+  font-weight: 700;
+  font-size: .9rem;
+  margin-left: auto;
+}
+
+.oh em {
+  font-style: normal;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--c);
+}
+
+.ocards {
+  display: flex;
+  gap: 5px;
+  padding-top: 4px;
+}
+
+.ocards .pc {
+  --w: var(--ow);
+}
+
+.ocards .empty {
+  font-size: .78rem;
+}
+
+.empty {
+  color: var(--muted);
+  font-style: italic;
+  font-size: .85rem;
+  padding: 6px;
+}
+
+/* ── TIDSLINJEN (midten) ── */
+
+.tl-zone {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 2px solid rgba(217,168,66,.45);
+  border-bottom: 2px solid rgba(217,168,66,.45);
+}
+
+.tl-zone::before,
+.tl-zone::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(217,168,66,.25);
+}
+
+.tl-zone::before {
+  top: 4px;
+}
+
+.tl-zone::after {
+  bottom: 4px;
+}
+
+.tl-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 18px 0;
+  gap: 12px;
+}
+
+.tl-title {
+  font-family: var(--display);
+  font-size: .78rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.tl-hint {
+  font-size: .82rem;
+  color: #d4cab4;
+  text-align: right;
+}
+
+.tl-hint b {
+  color: var(--gold2);
+}
+
+.tl-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217,168,66,.5) transparent;
+}
+
+.tl-track {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  min-width: max-content;
+  margin: 0 auto;
+  position: relative;
+}
+
+.tl-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  background: linear-gradient(90deg,transparent,var(--gold) 3%,var(--gold2) 50%,var(--gold) 97%,transparent);
+  opacity: .7;
+  box-shadow: 0 0 14px rgba(217,168,66,.7);
+}
+
+.tl-track .pc {
+  --w: var(--tw);
+  z-index: 1;
+}
+
+.slot {
+  width: 20px;
+  height: calc(var(--tw) * 1.4);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width .22s;
+}
+
+.slot .pl {
+  position: absolute;
+  inset: 4px 3px;
+  border-radius: 10px;
+  border: 2px dashed transparent;
+  transition: .22s;
+  display: grid;
+  place-items: center;
+}
+
+.slot .pl span {
+  font-family: var(--display);
+  font-weight: 900;
+  color: var(--gold2);
+  font-size: 1.1rem;
+  opacity: 0;
+  transition: .2s;
+  text-align: center;
+  line-height: 1;
+}
+
+.slot .pl small {
+  display: none;
+  font-family: var(--ui);
+  font-size: .66rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.slot.live {
+  cursor: pointer;
+  width: 36px;
+}
+
+.slot.live .pl {
+  border-color: rgba(243,210,126,.55);
+  background: rgba(217,168,66,.08);
+}
+
+.slot.live .pl span {
+  opacity: .85;
+}
+
+.slot.live:hover,
+.slot.live.hot {
+  width: calc(var(--tw) * .95);
+}
+
+.slot.live:hover .pl,
+.slot.live.hot .pl {
+  border-color: var(--gold2);
+  background: rgba(217,168,66,.2);
+  box-shadow: 0 0 26px rgba(217,168,66,.45);
+}
+
+.slot.live:hover .pl span,
+.slot.live.hot .pl span {
+  opacity: 1;
+  font-size: 1.7rem;
+}
+
+.slot.live:hover .pl small,
+.slot.live.hot .pl small {
+  display: block;
+}
+
+.slot.watch-hot {
+  width: 46px;
+}
+
+.slot.watch-hot .pl {
+  border-color: var(--c);
+  background: rgba(255,255,255,.08);
+  box-shadow: 0 0 20px -2px var(--c);
+}
+
+.slot.wrongpick {
+  width: 42px;
+}
+
+.slot.wrongpick .pl {
+  border: 2px dashed var(--bad);
+  background: rgba(232,87,75,.14);
+}
+
+.slot.wrongpick .pl span {
+  opacity: 1;
+  color: var(--bad);
+}
+
+/* resultat over tidslinjen */
+
+.result-pop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%) scale(.9);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition: .25s;
+  width: min(440px,92%);
+  background: linear-gradient(180deg,rgba(24,30,46,.97),rgba(14,18,28,.97));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.7);
+}
+
+.result-pop.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%,-50%);
+}
+
+.result-pop.low {
+  top: auto;
+  bottom: 10px;
+  transform: translate(-50%,0);
+}
+
+.verdict {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.verdict small {
+  font-family: var(--ui);
+  font-weight: 600;
+  font-size: .8rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.verdict.ok {
+  color: var(--ok);
+}
+
+.verdict.bad {
+  color: var(--bad);
+}
+
+.rlines {
+  display: grid;
+  gap: 5px;
+  font-size: .86rem;
+}
+
+.rline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.05);
+}
+
+.rline b {
+  font-family: var(--display);
+  color: var(--gold2);
+}
+
+.rline.total {
+  background: rgba(217,168,66,.12);
+  border: 1px solid rgba(217,168,66,.35);
+}
+
+.rdesc {
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.3;
+  color: #ddd3bd;
+}
+
+.controls .btn.gold {
+  width: 100%;
+}
+
+.result-pop .btn {
+  width: 100%;
+}
+
+/* ── MIN HÅND (nederst) ── */
+
+.my-zone {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(260px,330px);
+  gap: 14px;
+  padding: 6px 16px max(10px,env(safe-area-inset-bottom));
+  align-items: end;
+}
+
+.hand-wrap {
+  min-width: 0;
+}
+
+.hand-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--gold2);
+  font-size: .92rem;
+  padding-left: 4px;
+  margin-bottom: 2px;
+}
+
+.hand-label .av {
+  width: 24px;
+  height: 24px;
+  font-size: .75rem;
+  border-color: var(--c);
+}
+
+.hand-label small {
+  font-family: var(--ui);
+  font-weight: 500;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.myhand {
+  display: flex;
+  justify-content: safe center;
+  padding: calc(var(--hw) * .22) 10px 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.myhand .pc {
+  --w: var(--hw);
+  margin-left: var(--ov,8px);
+}
+
+.myhand .pc:first-child {
+  margin-left: 0;
+}
+
+.myhand .pc:hover,
+.myhand .pc.sel {
+  z-index: 5;
+}
+
+.controls {
+  background: linear-gradient(180deg,rgba(24,30,46,.92),rgba(14,18,28,.94));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 6px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+}
+
+.whos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whos .av {
+  width: 40px;
+  height: 40px;
+  font-size: 1.15rem;
+  border-color: var(--c);
+  box-shadow: 0 0 16px -2px var(--c);
+}
+
+.whos .t1 {
+  font-size: .68rem;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.whos .t2 {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.instr {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 1.3;
+  color: #e2d8c2;
+}
+
+.instr b {
+  color: var(--gold2);
+}
+
+.watch {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.guess {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 9px 11px;
+}
+
+.guess .gh {
+  font-weight: 600;
+  font-size: .84rem;
+}
+
+.guess .gr {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.guess input {
+  flex: 1;
+  min-width: 70px;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 7px;
+}
+
+.guess .seg {
+  flex-shrink: 0;
+  padding: 3px;
+}
+
+.guess .seg button {
+  padding: 6px 9px;
+  font-size: .78rem;
+}
+
+.guess .set-note {
+  font-size: .74rem;
+}
+
+.set-note {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.set-note.warn {
+  color: #f0b46a;
+}
+
+.swapbox {
+  background: rgba(54,192,192,.08);
+  border: 1px solid rgba(54,192,192,.45);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.swapbox .sh {
+  font-weight: 700;
+  color: #8fe3e3;
+}
+
+.swapbox .sl {
+  display: flex;
+  gap: 8px;
+  font-size: .86rem;
+}
+
+.swapbox .sl span {
+  color: var(--muted);
+  min-width: 58px;
+}
+
+.swapbox .sl b small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.swapbox .sb {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.swapbox .sb .btn {
+  padding: 8px 12px;
+  font-size: .88rem;
+}
+
+.swapbtn {
+  justify-content: space-between;
+  text-align: left;
+  font-size: .88rem;
+  padding: 9px 12px;
+  border-color: rgba(54,192,192,.45);
+  color: #bff0f0;
+}
+
+.swapbtn .short {
+  display: none;
+}
+
+.swapbtn small {
+  opacity: .7;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pc-stack {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+}
+
+.pc-stack .pc {
+  --w: var(--hw);
+  margin-left: calc(var(--hw) * -.82);
+}
+
+.pc-stack .pc:first-child {
+  margin-left: 0;
+}
+
+.pc-stack .pc:nth-child(2) {
+  transform: rotate(4deg);
+}
+
+.pc-stack .pc:nth-child(3) {
+  transform: rotate(9deg);
+}
+
+/* Overlays (bokse oven på spillet) */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(5,7,12,.72);
+  backdrop-filter: blur(8px);
+}
+
+.overlay.show {
+  display: flex;
+  animation: fadein .3s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+}
+
+.turn-box {
+  text-align: center;
+  max-width: 520px;
+  width: 100%;
+  animation: rise .5s cubic-bezier(.2,1.3,.4,1);
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(30px) scale(.95);
+    opacity: 0;
+  }
+}
+
+.turn-box .av {
+  width: 120px;
+  height: 120px;
+  font-size: 3.4rem;
+  margin: 0 auto 18px;
+  border: 4px solid var(--c);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.04),0 0 60px -4px var(--c);
+}
+
+.turn-box .t1 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.35rem;
+  color: #d9cfb8;
+}
+
+.turn-box .t2 {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(2.2rem,7vw,3.4rem);
+  line-height: 1.05;
+  margin: 4px 0 14px;
+  color: #fff;
+}
+
+.turn-box .t3 {
+  color: #d9cfb8;
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+.turn-box .t3 b {
+  color: var(--gold2);
+}
+
+.turn-box .btn {
+  padding: 16px 34px;
+  font-size: 1.15rem;
+}
+
+.turn-box .host-skip {
+  display: block;
+  margin: 16px auto 0;
+}
+
+.turn-box.canon .t3 {
+  color: #ffc9bd;
+}
+
+.canon-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: .85rem;
+  color: #ffe1d6;
+  background: linear-gradient(135deg,#b8261d,#7a120d);
+  box-shadow: 0 0 40px rgba(200,40,30,.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 70px rgba(220,60,40,.7);
+  }
+}
+
+.end-box {
+  width: min(620px,100%);
+  text-align: center;
+  padding: 30px 26px;
+  position: relative;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 100px rgba(0,0,0,.6);
+  animation: rise .6s;
+}
+
+.end-box h2 {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: var(--gold2);
+  margin-bottom: 4px;
+}
+
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 26px 0 18px;
+}
+
+.pod {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 110px;
+}
+
+.pod .av {
+  width: 64px;
+  height: 64px;
+  font-size: 1.8rem;
+  border-color: var(--c);
+}
+
+.pod.p1 .av {
+  width: 86px;
+  height: 86px;
+  font-size: 2.4rem;
+  box-shadow: 0 0 40px rgba(243,210,126,.6);
+}
+
+.pod .nm {
+  font-weight: 700;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pod .block {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.6rem;
+  background: linear-gradient(180deg,rgba(217,168,66,.5),rgba(217,168,66,.12));
+  border: 1px solid rgba(217,168,66,.5);
+  color: #fff;
+}
+
+.pod.p1 .block {
+  height: 110px;
+}
+
+.pod.p2 .block {
+  height: 80px;
+}
+
+.pod.p3 .block {
+  height: 58px;
+}
+
+.pod .ps {
+  font-family: var(--display);
+  color: var(--gold2);
+  font-weight: 700;
+}
+
+.ranks {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.rank {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.rank .nm {
+  flex: 1;
+  font-weight: 600;
+}
+
+.rank .st {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.rank b {
+  font-family: var(--display);
+  color: var(--gold2);
+}
+
+.end-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.rules {
+  width: min(640px,100%);
+  padding: 28px 30px;
+}
+
+.rules ol {
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.5;
+  color: #ddd4c0;
+}
+
+.rules h3 {
+  font-family: var(--display);
+  color: var(--gold);
+  margin: 20px 0 8px;
+  font-size: 1.05rem;
+}
+
+.rules p {
+  line-height: 1.5;
+  color: #ddd4c0;
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--muted);
+}
+
+.close:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 64px;
+  transform: translateX(-50%) translateY(-160px);
+  background: #1d2436;
+  border: 1px solid var(--line);
+  padding: 12px 18px;
+  border-radius: 14px;
+  z-index: 90;
+  transition: .35s;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+  max-width: 90vw;
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+#confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+
+.cf {
+  position: absolute;
+  top: -20px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+  }
+}
+
+/* ── Tilpasning til små skærme ── */
+
+@media (max-width:820px) {
+  .brand {
+    display: none;
+  }
+  .net-pill {
+    display: none;
+  }
+  .opps {
+    justify-content: flex-start;
+    padding: 8px 10px 6px;
+  }
+  .my-zone {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 4px 8px max(8px,env(safe-area-inset-bottom));
+  }
+  .controls {
+    order: -1;
+    padding: 8px 10px;
+    gap: 7px;
+    margin-bottom: 0;
+    border-radius: 14px;
+  }
+  .myhand {
+    justify-content: flex-start;
+  }
+  .myhand .pc {
+    margin-left: 8px;
+  }
+  .whos {
+    display: none;
+  }
+  .instr {
+    font-size: .95rem;
+  }
+  .guess {
+    padding: 7px 9px;
+  }
+  .guess .set-note {
+    display: none;
+  }
+  .verdict {
+    font-size: 1.45rem;
+  }
+  .rdesc {
+    font-size: .95rem;
+  }
+  .result-pop {
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width:520px) {
+  .swapbtn .long {
+    display: none;
+  }
+  .swapbtn .short {
+    display: inline;
+  }
+  .prow {
+    flex-wrap: wrap;
+  }
+  .prow input {
+    min-width: 0;
+    flex: 1 1 60%;
+  }
+  .prow .avatar-pick {
+    width: 100%;
+    padding-left: 22px;
+  }
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .deck-mini {
+    display: none;
+  }
+  .setup {
+    padding: 24px 18px;
+  }
+  .code {
+    font-size: 2.6rem;
+  }
+  .tl-head {
+    padding: 6px 12px 0;
+  }
+  .tl-hint {
+    font-size: .74rem;
+  }
+  .chip .cnt {
+    display: none;
+  }
+}
+
+
+/* ========================================================================
+   DEL 2 · KORTBILLEDER OG TRÆK
+   Malerier vises uden beskæring, kortene på hånden, træk-zonen og zoom.
+   ======================================================================== */
+
+.pc-img:has(.art-original) {
+  background: #342c23;
+}
+
+.pc-img img.art-original {
+  object-fit: contain;
+}
+
+.myhand .pc {
+  touch-action: none;
+  user-select: none;
+}
+
+.myhand .pc.held {
+  z-index: 60;
+  transition: none;
+  cursor: grabbing;
+}
+
+.dragging .myhand,
+.dragging .hand-wrap,
+.dragging .my-zone {
+  overflow: visible;
+}
+
+.dragging .my-zone {
+  position: relative;
+  z-index: 40;
+}
+
+.targeted .pl {
+  border: 2px dashed #f6ce77;
+  background: #f1c66e55;
+}
+
+.rules a {
+  color: #f4d890;
+}
+
+.rules {
+  overflow: auto;
+  max-height: 88vh;
+}
+
+#zoom {
+  display: none !important;
+}
+
+
+/* ========================================================================
+   DEL 3 · LØFTEDE KORT, HÅND OG ÅRSTALSDIALOG
+   Kortet, der holdes/svæver over bordet, linjen over hånden, kontrolfeltet
+   og dialogen til at gætte et årstal.
+   ======================================================================== */
+
+#scr-game .pc.raised:popover-open {
+  position: fixed !important;
+  inset: auto !important;
+  left: var(--lift-x) !important;
+  top: var(--lift-y) !important;
+  width: var(--lift-w) !important;
+  height: var(--lift-h) !important;
+  transform-origin: center !important;
+  margin: 0 !important;
+  transition: none !important;
+  overflow: visible;
+  animation: none !important;
+  color: inherit;
+  padding: 0;
+}
+
+.dragging .pc.raised {
+  cursor: grabbing;
+}
+
+#scr-game .pc img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.hand-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.hand-bar [hidden] {
+  display: none;
+}
+
+#scr-game .my-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+#controls {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0 8px;
+  align-items: center;
+  max-height: 24vh;
+  overflow: auto;
+}
+
+#controls .whos,
+#controls .instr {
+  display: none;
+}
+
+#controls .swapbtn {
+  width: auto;
+  margin: 0;
+}
+
+#year-dialog {
+  margin: auto;
+  background: #202633;
+  color: #fff2d6;
+  border: 1px solid #a88847;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+#year-dialog input,
+#year-dialog select {
+  font: inherit;
+  margin: 10px 4px 12px 0;
+  padding: 5px;
+}
+
+#year-input {
+  width: 8em;
+}
+
+
+/* ========================================================================
+   DEL 4 · KORTENES INDRE OPBYGNING OG PLADSERNE PÅ TIDSLINJEN
+   Rækkerne inde i et kort (billede, titel, årstal) og de felter på
+   tidslinjen, der lyser op, mens man trækker et kort.
+   ======================================================================== */
+
+.pc .pc-in {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  align-items: center;
+  justify-items: center;
+  row-gap: .16em;
+}
+
+.pc-year .pc-in {
+  grid-template-rows: minmax(0,1fr) auto auto auto;
+}
+
+.pc-year.canon .pc-in {
+  grid-template-rows: minmax(0,1fr) auto auto auto auto;
+}
+
+.pc .pc-title,
+.pc .pc-tip {
+  display: block;
+  height: auto;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: pretty;
+  line-height: 1.12;
+}
+
+.pc .pc-title {
+  font-size: calc(1.02em * var(--type-fit,1));
+}
+
+.pc .pc-tip {
+  font-size: calc(.79em * var(--type-fit,1));
+}
+
+.pc-year .pc-title {
+  font-size: calc(.97em * var(--type-fit,1));
+}
+
+.pc .pc-img {
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  width: 100%;
+  margin: 0;
+}
+
+.pc .pc-era,
+.pc .pc-canon,
+.pc .pc-yr {
+  margin: 0;
+  padding: 0;
+}
+
+.dragging #timeline .slot {
+  width: 36px;
+}
+
+.dragging #timeline .slot .pl {
+  border-color: rgba(243,210,126,.65);
+  background: rgba(217,168,66,.10);
+}
+
+.dragging #timeline .slot .pl:empty::before {
+  content: "＋";
+  color: var(--gold2);
+  font: bold 1.1rem var(--display);
+}
+
+.dragging #timeline .slot.targeted {
+  width: calc(var(--tw)*.95);
+}
+
+.dragging #timeline .slot.targeted .pl {
+  border-color: var(--gold2);
+  background: rgba(217,168,66,.2);
+  box-shadow: 0 0 26px rgba(217,168,66,.45);
+  align-content: center;
+}
+
+.dragging #timeline .slot.targeted .pl:empty::before {
+  font-size: 1.7rem;
+}
+
+.dragging #timeline .slot.targeted .pl:empty::after {
+  content: "Læg her";
+  color: var(--gold2);
+  font: bold .68rem var(--ui);
+}
+
+.dragging #timeline .slot.targeted .pl small {
+  display: block;
+}
+
+
+/* ========================================================================
+   DEL 5 · TEMA: GAMMELT PAPIR, TRÆ OG LÆDER
+   Giver alt det middelalderlige udseende: forsiden, knapper, paneler og
+   dialoger på lyst papir med mørk tekst, chips, beskeder og slutskærm.
+   Paneler og dialoger (.panel, .turn-box ...) sætter her deres egne
+   tekstfarver (--text, --gold ...), som kun gælder inde i dem.
+   ======================================================================== */
+
+.hero,
+.end-box {
+  border: 3px double #c7a16a;
+  border-radius: 5px;
+  box-shadow: var(--frame);
+}
+
+.hero {
+  margin: auto;
+  background: #211912;
+}
+
+.hero-art {
+  background: linear-gradient(90deg,#211811ec,#231a16b8 37%,transparent 74%),var(--img-titel) center/cover;
+}
+
+.hero-art::after {
+  inset: 7px;
+  width: auto;
+  aspect-ratio: auto;
+  transform: none;
+  animation: none;
+  border: 1px solid #d9b47466;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.orbit,
+.hourglass {
+  display: none;
+}
+
+.logo {
+  font: 400 clamp(3rem,6.3vw,4.7rem)/.94 var(--fell);
+  background: none;
+  color: #f6dfaa;
+  letter-spacing: -.025em;
+  text-shadow: 0 2px 2px #201209;
+}
+
+.tagline {
+  color: #f4e4ca;
+}
+
+.btn,
+.icon-btn,
+.swapbox,
+.swapbtn {
+  border: 1px solid #97734c;
+  border-radius: 4px;
+  background: var(--timber);
+  color: #fff1d3;
+  box-shadow: inset 0 0 0 2px #2f2019,inset 0 0 0 3px #bd965444,0 2px 4px #160b074d;
+}
+
+.btn.gold,
+.seg button.on {
+  background: var(--leather);
+  color: #fff1cc;
+  border: 1px solid #ae8957;
+  box-shadow: inset 0 0 0 2px #512620,inset 0 0 0 3px #bf935e88,0 2px 5px #301a103d;
+}
+
+.btn:hover,
+.btn.gold:hover,
+.icon-btn:hover {
+  background-color: #614332;
+  filter: brightness(1.15);
+  box-shadow: inset 0 0 0 1px #e0b578;
+}
+
+.home-buttons .btn {
+  font: 400 1.33rem/1.07 var(--fell);
+  gap: 3px;
+  position: relative;
+}
+
+.home-buttons .btn small {
+  font: 500 .94rem/1.2 var(--serif);
+  opacity: 1;
+}
+
+.home-buttons .ic {
+  font-family: Georgia,serif;
+}
+
+.panel,
+.turn-box,
+.result-pop,
+#year-dialog,
+#wiki-credits,
+#quit-dialog {
+  background: var(--vellum) !important;
+  color: #382719 !important;
+  --text: #382719;
+  --muted: #65503b;
+  --gold: #774421;
+  --gold2: #672c25;
+  --ok: #275238;
+  --bad: #8a2829;
+  border: 4px double #997544;
+  border-radius: 4px !important;
+  box-shadow: var(--frame),inset 0 0 22px #a6784038;
+  backdrop-filter: none;
+}
+
+.setup h2,
+.rules h2,
+#wiki-credits h2,
+#quit-dialog h2,
+.end-box h2,
+.turn-box .t2 {
+  font: 400 clamp(1.6rem,3vw,2.3rem)/1.1 var(--fell);
+  letter-spacing: 0;
+}
+
+.setup h2,
+.rules h2,
+#wiki-credits h2 {
+  padding: 0 3.5rem .65rem 0;
+  border-bottom: 3px double #aa864e;
+}
+
+.setup.center h2 {
+  padding-right: 0;
+}
+
+.label,
+.tl-title,
+.hand-label,
+.brand {
+  font-family: var(--display);
+}
+
+.label {
+  letter-spacing: .065em;
+  color: #6b3f28;
+}
+
+.rules ol,
+.rules p,
+.rdesc,
+.toggle,
+.turn-box .t1,
+.turn-box .t3,
+.turn-box .t2,
+.turn-box.canon .t3 {
+  color: #453022;
+}
+
+.rules a,
+#wiki-credits a,
+.panel .link-btn,
+.set-note.warn,
+.back,
+.close {
+  color: #77362a;
+}
+
+.back:hover,
+.close:hover,
+.panel .link-btn:hover {
+  background: #8f643520;
+  color: #522419;
+}
+
+.seg,
+.lobby-item {
+  border: 1px solid #b69970;
+  background: #c5a77d3d;
+  border-radius: 3px;
+}
+
+.seg button {
+  border-radius: 2px;
+  color: #503923;
+}
+
+.seg button:not(.on):hover {
+  background: #ba936046;
+  color: #482b1d;
+}
+
+.panel input:not([type]),
+.panel input[type=text],
+#year-dialog input,
+#year-dialog select {
+  background: #fff6de;
+  color: #39271a;
+  border: 1px solid #937145;
+  border-radius: 3px;
+  box-shadow: inset 0 2px 5px #805d3626;
+}
+
+.panel input::placeholder {
+  color: #715d49;
+}
+
+:is(button,input,select,a):focus-visible {
+  outline: 3px solid #b2792e;
+  outline-offset: 2px;
+}
+
+button.av.on {
+  border-color: #643329;
+  box-shadow: 0 0 0 2px #f8e7bc,0 0 0 4px #95682e;
+}
+
+.code-box {
+  background: linear-gradient(#332118ab,#251b15e6),var(--img-lobby) center/cover;
+  border: 3px double #a48455;
+  border-radius: 3px;
+}
+
+.code-box :is(.label,.code,.code-status,.link-btn) {
+  color: #ffe5b4;
+}
+
+.topbar,
+.my-zone {
+  background: var(--timber);
+  border-block: 3px double #957348;
+}
+
+.tl-head {
+  color: #ffedca;
+  text-shadow: 0 1px 4px #201208;
+}
+
+.chip,
+.toast {
+  border-radius: 4px;
+  background: #38271e;
+  color: #f8e8c6;
+  border-color: #886744;
+}
+
+.chip.active {
+  background: #65462d;
+  box-shadow: inset 0 -2px var(--c);
+}
+
+.pc:not(.canon) {
+  --fr: #364d47;
+  --fr2: #233733;
+  --tc: #352c23;
+}
+
+.pc-in {
+  background: var(--vellum);
+}
+
+.pc-tipbtn {
+  font-family: var(--serif);
+}
+
+.swapbox .sh,
+.swapbtn {
+  color: #ffe6bd;
+}
+
+.overlay,
+dialog::backdrop {
+  background: #20160ecc;
+  backdrop-filter: blur(3px);
+}
+
+.turn-box {
+  padding: clamp(18px,4vw,36px);
+  max-height: 90dvh;
+  overflow: auto;
+}
+
+.end-box {
+  background: linear-gradient(#2b1c14d9,#231910ed),var(--img-sejr) center/cover;
+  max-height: 90dvh;
+  overflow: auto;
+}
+
+#year-dialog,
+#quit-dialog {
+  margin: auto;
+  padding: 22px;
+  max-width: min(92vw,30rem);
+}
+
+#quit-dialog p {
+  margin: .7em 0 1.2em;
+}
+
+.result-pop .verdict {
+  gap: .5em;
+}
+
+@media (max-width:600px) {
+  .hero-inner {
+    padding: clamp(22px,6vw,36px);
+  }
+  .hero-art {
+    background: linear-gradient(90deg,#21170fee,#291d16b3 70%,#291d1677),var(--img-titel) 63% center/cover;
+  }
+  .setup h2 {
+    padding-right: 4rem;
+  }
+  .setup.narrow h2 {
+    padding-top: 1.15rem;
+  }
+}
+
+
+/* ========================================================================
+   DEL 6 · EGETRÆSBORD OG MENUEN "VÆLG KORTSÆT"
+   Spillebordet og knapperne i kortsæt-menuen (inkl. farvede og
+   læderlignende knapper, sat med menuColor/menuStyle i sætfilerne).
+   ======================================================================== */
+
+#bg {
+  background: linear-gradient(180deg,#080a10cc,#07080bee),var(--img-baggrund) center/cover,#090a0e;
+}
+
+.my-zone {
+  background: transparent;
+  border: 0;
+}
+
+.topbar {
+  background: #181410ed;
+  border-color: #5c4834;
+}
+
+.tl-zone {
+  margin: 2px clamp(5px,1.4vw,26px);
+}
+
+#deck-menu {
+  margin: auto;
+  width: min(440px,92vw);
+  padding: 24px;
+  color: #37271c;
+  background: var(--vellum);
+  border: 4px double #937147;
+  border-radius: 4px;
+  box-shadow: var(--frame);
+}
+
+#deck-menu h2 {
+  font: 400 1.9rem var(--fell);
+  margin: 0 0 .65rem;
+}
+
+#deck-menu label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #9c8059;
+  padding: 10px 14px;
+  cursor: pointer;
+  margin: 7px 0;
+}
+
+#deck-menu label:has(:checked) {
+  border-color: #774232;
+  background: #88552d18;
+  box-shadow: inset 3px 0 #793f30;
+}
+
+#deck-menu input {
+  accent-color: #783729;
+}
+
+#deck-menu label.set-accent {
+  border-color: color-mix(in srgb,rgb(var(--set-accent)) 80%,#000);
+  background: rgba(var(--set-accent),.72);
+  color: #fff6ea;
+  box-shadow: inset 0 0 16px rgba(40,15,0,.45);
+}
+
+#deck-menu label.set-accent:has(:checked) {
+  border-color: color-mix(in srgb,rgb(var(--set-accent)) 50%,#000);
+  background: rgba(var(--set-accent),.9);
+  box-shadow: inset 5px 0 color-mix(in srgb,rgb(var(--set-accent)) 50%,#000),inset 0 0 16px rgba(40,15,0,.5);
+}
+
+#deck-menu label.set-home {
+  background: repeating-linear-gradient(135deg,rgba(255,240,220,.02) 0 2px,transparent 2px 5px),linear-gradient(180deg,#6a2119 0%,#5a1a14 50%,#47140f 100%);
+  border-color: #a8844c;
+  color: #e6cd93;
+  box-shadow: inset 0 0 0 1px #1e0907,inset 0 0 16px 5px rgba(12,4,2,.72);
+}
+
+#deck-menu label.set-home small {
+  color: #dcc7a6;
+}
+
+#deck-menu label.set-home:has(:checked) {
+  border-color: #bf9a58;
+  box-shadow: inset 5px 0 #bf9a58,inset 0 0 0 1px #1e0907,inset 0 0 16px 5px rgba(12,4,2,.72);
+}
+
+#deck-menu label.set-home input {
+  accent-color: #bf9a58;
+}
+
+#deck-menu label.set-accent input {
+  accent-color: color-mix(in srgb,rgb(var(--set-accent)) 50%,#000);
+}
+
+#deck-menu strong {
+  font: 400 1.35rem var(--fell);
+}
+
+#deck-menu small {
+  display: block;
+  font-size: .95rem;
+}
+
+.chip .cnt[title="Kort på hånden"] {
+  display: inline;
+}
+
+
+/* ========================================================================
+   DEL 7 · PLACERING OG "FORSIDE"-KNAPPEN
+   Centrering af tidslinje og hænder, og knappen der fører til forsiden.
+   ======================================================================== */
+
+.tl-track {
+  justify-content: center;
+}
+
+.myhand,
+.opps {
+  justify-content: safe center;
+}
+
+@media (max-width:820px) {
+  .myhand,
+  .opps {
+    justify-content: safe center;
+  }
+}
+
+#btn-quit {
+  width: auto;
+  min-width: 0;
+  padding: 0 14px;
+  gap: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 1rem var(--ui);
+  white-space: nowrap;
+}
+
+#btn-quit .qi {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+@media (max-width:600px) {
+  #btn-quit .ql {
+    display: none;
+  }
+  #btn-quit {
+    padding: 0 10px;
+  }
+}
+
+.topbar .brand {
+  cursor: pointer;
+}
+
+.topbar .brand:hover {
+  color: var(--gold2);
+}
+
+
+/* ========================================================================
+   DEL 8 · STØRRE KORT, BORDET, (?)-KNAP OG INFO-VINDUER
+   Kortstørrelser på smalle skærme, bordets baggrund, (?)-knappen på kortene,
+   den lille beskrivelse ved tryk og "Læs mere"-vinduet.
+   ======================================================================== */
+
+/* Større kort fra start */
+
+@media (max-width:820px) {
+  .tl-zone {
+    border-width: 12px !important;
+  }
+  :root {
+    --hw: calc(clamp(99px,31.5vw,140px) * var(--skala-egne,1));
+    --tw: calc(clamp(90px,min(31vw,17.85vh),147px) * var(--skala-tidslinje,1));
+    --ow: calc(clamp(99px,31.5vw,140px) * 0.894 * var(--skala-modspiller,1));
+  }
+}
+
+/* Kun en smule større ved hover */
+
+#scr-game .pc.raised:popover-open {
+  transform: none !important;
+  box-shadow: 0 0 0 2px #f3d27e,0 6px 14px #0009;
+  will-change: left,top;
+}
+
+.myhand .pc.held {
+  transform: none !important;
+}
+
+.pc-img:has(img) .emo {
+  display: none;
+}
+
+.tl-zone {
+  contain: layout paint;
+}
+
+.myhand {
+  padding-top: calc(var(--hw) * .1) !important;
+}
+
+.tl-scroll {
+  padding: 8px 0 10px !important;
+}
+
+.tl-head {
+  padding-top: 5px !important;
+}
+
+/* Rolig baggrund i forsidens stil i stedet for dug og træ */
+
+.table {
+  position: relative;
+  isolation: isolate;
+  background: #0c0a08;
+}
+
+.table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("../images/bordkant.jpg") center/cover;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 45%,transparent 30%,#07060599 100%);
+}
+
+.has-bordplade .table::before {
+  inset: 0;
+  background: var(--img-bordplade) center bottom/cover;
+  filter: none;
+}
+
+.tl-zone {
+  backdrop-filter: none !important;
+}
+
+/* (?)-knap på kortene */
+
+.pc {
+  position: relative;
+}
+
+.pc-q {
+  position: absolute;
+  right: -.35em;
+  bottom: -.35em;
+  z-index: 4;
+  width: 1.75em;
+  height: 1.75em;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  border: 1px solid #b08a4e;
+  background: #2b2018;
+  color: #ffe6b0;
+  font: 700 1.05em/1 var(--serif);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: help;
+  box-shadow: 0 1px 4px #000a;
+  opacity: .92;
+}
+
+.pc-q:hover,
+.pc-q:focus-visible {
+  background: #6a3a24;
+  opacity: 1;
+}
+
+.ocards .pc-q {
+  font-size: 1.25em;
+}
+
+/* Kortets beskrivelse ved tryk */
+
+#card-peek {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(300px,88vw);
+  padding: 12px 14px 10px;
+  background: var(--vellum,#f3e1c2);
+  color: #382719;
+  border: 3px double #997544;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px #000b;
+  font: 500 .98rem/1.35 var(--serif);
+  text-align: left;
+}
+
+#card-peek .cp-title {
+  font: 400 1.2rem/1.15 var(--fell);
+  margin-bottom: 6px;
+  color: #3a2414;
+}
+
+#card-peek .cp-desc {
+  margin-bottom: 8px;
+}
+
+#card-peek .cp-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: 0;
+  color: #77362a;
+  font: 700 .95rem var(--serif);
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+#card-peek .cp-more .q {
+  display: grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 50%;
+  background: #2b2018;
+  color: #ffe6b0;
+  font-size: .85em;
+}
+
+/* Læs mere-vindue */
+
+#info-dialog {
+  margin: auto;
+  max-width: min(680px,94vw);
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 22px;
+  background: var(--vellum,#f3e1c2);
+  color: #382719;
+  border: 4px double #997544;
+  border-radius: 6px;
+  box-shadow: 0 15px 46px #000c;
+}
+
+#info-dialog .info-wrap {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+#info-dialog .info-card {
+  flex: 0 0 auto;
+}
+
+#info-dialog .info-card .pc {
+  --w: 190px;
+}
+
+#info-dialog h2 {
+  font: 400 clamp(1.5rem,3vw,2rem)/1.1 var(--fell);
+  margin: 0 0 6px;
+}
+
+#info-dialog .info-meta {
+  font: 600 .95rem var(--serif);
+  color: #6b3f28;
+  margin-bottom: 10px;
+}
+
+#info-dialog p {
+  font: 500 1.05rem/1.45 var(--serif);
+  margin: 0 0 10px;
+}
+
+#info-dialog .info-tip {
+  font-style: italic;
+  color: #4f3a28;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+#info-dialog .info-wiki a {
+  color: #77362a;
+  font-weight: 700;
+}
+
+#info-dialog .info-actions {
+  text-align: right;
+  margin-top: 6px;
+}
+
+@media (max-width:600px) {
+  #info-dialog .info-wrap {
+    flex-direction: column;
+    align-items: center;
+  }
+  #info-dialog .info-card .pc {
+    --w: 150px;
+  }
+}
+
+
+/* ========================================================================
+   DEL 9 · KORTFORSIDE, ÅRSTALSFELT OG KASSÉR-KRYDS
+   ======================================================================== */
+
+/* Ingen tekst på kortene fra start – mere plads til billedet */
+
+.pc-front .pc-tip {
+  display: none !important;
+}
+
+.pc-front .pc-in {
+  grid-template-rows: auto minmax(0,1fr) auto !important;
+}
+
+.pc-front.canon .pc-in {
+  grid-template-rows: auto minmax(0,1fr) auto auto !important;
+}
+
+/* Årstalsfelt på kortet */
+
+.pc-guess {
+  display: flex;
+  gap: .25em;
+  width: 100%;
+  align-items: stretch;
+  justify-self: stretch;
+  margin-top: .15em;
+}
+
+.pc-guess input {
+  flex: 1;
+  min-width: 0;
+  font: 600 .95em/1 var(--serif);
+  padding: .35em .4em;
+  border: 1px solid #937145;
+  border-radius: .3em;
+  background: #fff8e6;
+  color: #2c1d12;
+  text-align: center;
+  box-shadow: inset 0 1px 3px #805d3640;
+}
+
+.pc-guess input::placeholder {
+  color: #8a7356;
+  font-weight: 500;
+}
+
+.pc-guess .bc {
+  flex: 0 0 auto;
+  font: 700 .7em/1 var(--serif);
+  padding: 0 .45em;
+  border: 1px solid #937145;
+  border-radius: .3em;
+  background: #e9d6ae;
+  color: #4a2e1b;
+  cursor: pointer;
+}
+
+.pc-guess.saved input {
+  border-color: #2f6b3f;
+  background: #eef7e6;
+  box-shadow: 0 0 0 2px #2f6b3f55;
+}
+
+.pc-guess.saved::after {
+  content: "✓";
+  align-self: center;
+  color: #2f6b3f;
+  font: 700 .9em var(--serif);
+}
+
+.pc-front.canon .pc-guess {
+  order: 0;
+}
+
+/* Stort rødt kryds over kortet, man kan smide væk */
+
+.pc-x {
+  display: none;
+}
+
+body.discarding #myhand .pc {
+  cursor: pointer;
+}
+
+body.discarding #myhand .pc .pc-x {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  font: 700 calc(var(--w)*.62)/1 var(--serif);
+  color: #e01b1b;
+  text-shadow: 0 0 10px #000,0 3px 0 #5a0000;
+  background: rgba(110,0,0,.30);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s;
+}
+
+body.discarding #myhand .pc:hover .pc-x,
+body.discarding #myhand .pc.raised .pc-x {
+  opacity: 1;
+}
+
+@media (hover:none) {
+  body.discarding #myhand .pc .pc-x {
+    opacity: .55;
+    font-size: calc(var(--w)*.45);
+  }
+}
+
+body.discarding #myhand {
+  outline: 2px dashed #e01b1b88;
+  outline-offset: -4px;
+  border-radius: 8px;
+}
+
+#card-peek .cp-tip {
+  font-style: italic;
+  color: #4f3a28;
+  margin-bottom: 6px;
+}
+
+#year-open {
+  display: none !important;
+}
+
+
+/* ========================================================================
+   DEL 10 · RESULTATBOKSEN
+   Boksen med "Rigtigt!"/"Forkert plads", der vises efter hvert svar.
+   ======================================================================== */
+
+/* Resultatet svæver øverst, så tidslinjen ikke bliver klemt */
+
+#controls:has(.verdict) {
+  position: fixed;
+  top: clamp(58px,8vh,76px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  width: min(620px,94vw);
+  max-height: 40vh;
+  overflow: auto;
+  background: #1d1611f2;
+  color: #f7ecd7;
+  border: 3px double #a88847;
+  border-radius: 6px;
+  box-shadow: 0 12px 34px #000c;
+  text-align: center;
+}
+
+#controls:has(.verdict) .rdesc {
+  color: #e8d8bd;
+}
+
+#controls:has(.verdict) p {
+  margin: .4em 0 .2em;
+}
+
+.pc-guess {
+  padding-right: .95em;
+}
+
+
+/* ========================================================================
+   DEL 11 · SPILLERFARVER
+   ======================================================================== */
+
+/* Ingen figur-ikoner – spillerne kendes på deres farve */
+
+.avatar-pick {
+  display: none !important;
+}
+
+.pdot {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 2px #00000055,0 0 8px var(--c);
+  vertical-align: middle;
+}
+
+.turn-box .pdot,
+.whos .pdot {
+  width: 16px;
+  height: 16px;
+}
+
+
+/* ========================================================================
+   DEL 12 · FORSIDENS STØRRELSE
+   ======================================================================== */
+
+/* Forsiden: lidt mindre og altid inden for skærmen */
+
+.hero {
+  width: min(1080px,100%) !important;
+  min-height: min(640px,calc(100dvh - 32px)) !important;
+}
+
+.hero-inner {
+  padding-block: clamp(18px,5vh,44px) !important;
+}
+
+.logo {
+  font-size: clamp(2.4rem,min(5.8vw,9.5vh),4.3rem) !important;
+}
+
+
+/* ========================================================================
+   DEL 13 · RAMMEN OM TIDSLINJEN
+   Selve tegningen ligger i css/indstillinger.css (--ramme-tidslinje).
+   ======================================================================== */
+
+/* Ramme om tidslinjen: bronze og guld med meander og hjørnemedaljoner */
+
+.tl-zone {
+  border: 18px solid transparent !important;
+  border-image: var(--ramme-tidslinje) 24 round !important;
+  border-radius: 0 !important;
+  background: radial-gradient(ellipse at 50% 50%,rgba(80,60,30,.30),transparent 70%),linear-gradient(180deg,rgba(12,17,30,.74),rgba(9,12,22,.84)) !important;
+  background-clip: padding-box !important;
+  box-shadow: 0 6px 22px rgba(0,0,0,.55) !important;
+}
+
+.tl-zone::before,
+.tl-zone::after {
+  display: none !important;
+}
+
+
+/* ========================================================================
+   DEL 14 · KNAPPERNE ØVERST I SPILLET
+   ======================================================================== */
+
+/* Ingen bjælke i toppen – kun gennemsigtige knapper */
+
+#scr-game .topbar {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 12px 0 !important;
+  justify-content: flex-end;
+  min-height: 0;
+}
+
+#scr-game .topbar .brand,
+#scr-game .topbar .scores,
+#deck-mini {
+  display: none !important;
+}
+
+#scr-game .topbar .icon-btn {
+  background: rgba(20,16,12,.28) !important;
+  border: 1px solid rgba(243,210,126,.35) !important;
+  box-shadow: none !important;
+  color: #f7e6c2 !important;
+  backdrop-filter: none;
+}
+
+#scr-game .topbar .icon-btn:hover {
+  background: rgba(60,45,28,.55) !important;
+  border-color: rgba(243,210,126,.7) !important;
+}
+
+@media (min-width:821px) {
+  #opps[hidden]~.tl-zone {
+    margin-top: 54px !important;
+  }
+  #scr-game .topbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    z-index: 20;
+    pointer-events: none;
+  }
+  #scr-game .topbar>* {
+    pointer-events: auto;
+  }
+}
+
+.inf-streak {
+  margin-left: 10px;
+  padding: 2px 10px;
+  border: 1px solid #c9a24a88;
+  border-radius: 999px;
+  font: 700 .85rem var(--serif);
+  color: #f3d27e;
+  white-space: nowrap;
+}
+
+
+/* ========================================================================
+   DEL 15 · HISTORIEKANON-KORT
+   Kanon-kort får mørkerød tekst.
+   ======================================================================== */
+
+.pc.canon {
+  --tc: #7c1a24;
+}
+
+
+/* ========================================================================
+   DEL 16 · BYT-IKONET
+   Selve tegningen ligger i css/indstillinger.css (--ikon-byt).
+   ======================================================================== */
+
+/* Byt-ikon nederst til højre */
+
+#swap-start.swap-icon {
+  position: fixed;
+  right: max(16px,env(safe-area-inset-right));
+  bottom: max(16px,env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 50%;
+  background: var(--ikon-byt) center/100% 100% no-repeat !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: transform .25s ease,filter .2s;
+}
+
+#swap-start.swap-icon:hover:not(:disabled) {
+  transform: rotate(-35deg);
+  filter: drop-shadow(0 0 8px rgba(243,210,126,.65));
+}
+
+#swap-start.swap-icon:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+#swap-start.swap-icon small {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #7c1a24;
+  border: 1px solid #f3d27e;
+  color: #fff3d6;
+  font: 700 .75rem/18px var(--serif);
+  text-align: center;
+}
+
+#swap-start.swap-icon:hover:not(:disabled) small {
+  transform: rotate(35deg);
+}
+
+@media (max-width:600px) {
+  #swap-start.swap-icon {
+    width: 52px;
+    height: 52px;
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
+
+/* ========================================================================
+   DEL 17 · BYT-BOKSENS PLACERING
+   ======================================================================== */
+
+#controls:has(.swapbox) {
+  position: fixed;
+  right: max(16px,env(safe-area-inset-right));
+  z-index: 31;
+  width: min(340px,92vw);
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+}
+
+@media (max-width:600px) {
+  #controls:has(.swapbox) {
+    right: 10px;
+  }
+}
+
+
+/* ========================================================================
+   DEL 18 · MØRKE MØNSTERRAMMER
+   Rammer om dialoger, resultatboks og byt-boks.
+   ======================================================================== */
+
+/* Mørk mønsterramme om tekstbokse og knapper */
+
+#info-dialog,
+#quit-dialog,
+#deck-menu,
+#year-dialog,
+#wiki-credits,
+.rules,
+.turn-box,
+.end-box,
+.panel,
+#controls:has(.verdict) {
+  border: 17px solid transparent !important;
+  border-image: var(--ramme-moerk) 24 round !important;
+  border-radius: 0 !important;
+  background-clip: padding-box !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.65) !important;
+}
+
+#controls:has(.verdict) {
+  border-width: 14px !important;
+  padding: 8px 14px !important;
+}
+
+#controls .swapbox {
+  border: 13px solid transparent !important;
+  border-image: var(--ramme-moerk) 24 round !important;
+  border-radius: 0 !important;
+  background: #1a140f !important;
+  background-clip: padding-box !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,.6) !important;
+}
+
+.home-buttons .btn:not(.gold) {
+  background-color: #1c1510 !important;
+}
+
+/* Ingen boks om modspillerens hånd */
+
+.opp,
+.opp.turn {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 6px !important;
+}
+
+.opp.turn .oh .nm {
+  color: var(--gold2);
+}
+
+
+/* ========================================================================
+   DEL 19 · BYT KORT MED EN MODSPILLER
+   Byt-knappen på egne kort og markeringen af modspillerens kort.
+   ======================================================================== */
+
+/* byt-knap på egne kort */
+
+.pc-swap {
+  position: absolute;
+  right: .78em;
+  bottom: .9em;
+  z-index: 4;
+  width: 1.75em;
+  height: 1.75em;
+  margin: 0;
+  padding: .28em;
+  border-radius: 50%;
+  border: .1em solid transparent;
+  background: transparent;
+  box-shadow: none;
+  color: #1d7c7d;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 0;
+  transition: background .15s,border-color .15s,color .15s,transform .15s;
+}
+
+.pc-swap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pc:has(>.pc-swap) .pc-guess {
+  padding-right: 2.25em !important;
+}
+
+.pc-swap:hover,
+.pc-swap:focus-visible {
+  background: rgba(13,18,28,.9);
+  border-color: #36c0c0;
+  color: #36c0c0;
+  transform: scale(1.1);
+}
+
+.pc-swap.on {
+  background: #36c0c0;
+  border-color: #bff0f0;
+  color: #0d121c;
+  box-shadow: 0 0 .8em rgba(54,192,192,.85);
+}
+
+.pc-swap.on:hover {
+  background: #4fd3d3;
+  color: #0d121c;
+}
+
+#myhand:has(.pc-swap.on) .pc-swap:not(.on) {
+  display: none;
+}
+
+#controls:has(.swapbox) {
+  top: calc(max(16px,env(safe-area-inset-top)) + 56px) !important;
+  bottom: auto !important;
+}
+
+/* modspillerens kort, når man er ved at bytte */
+
+.ocards .pc.swaptarget {
+  box-shadow: 0 0 0 .12em rgba(54,192,192,.6),0 .35em .9em rgba(0,0,0,.5);
+}
+
+.ocards .pc.swaptarget:hover {
+  transform: translateY(-.7em);
+  box-shadow: 0 0 0 .22em #36c0c0,0 0 1.6em rgba(54,192,192,.7),0 .8em 1.6em rgba(0,0,0,.55);
+}
+
+.pc-swapsym {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .35em;
+  border-radius: .2em;
+  background: rgba(13,18,28,.5);
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+
+.pc-swapsym i {
+  width: 4.6em;
+  height: 4.6em;
+  border-radius: 50%;
+  background: #36c0c0;
+  border: .2em solid #bff0f0;
+  display: grid;
+  place-items: center;
+  color: #0d121c;
+  box-shadow: 0 0 1.6em rgba(54,192,192,.9);
+}
+
+.pc-swapsym svg {
+  width: 60%;
+  height: 60%;
+  display: block;
+}
+
+.pc-swapsym b {
+  font-family: var(--display);
+  font-size: 1.15em;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #bff0f0;
+  text-shadow: 0 .1em .3em #000;
+}
+
+.ocards .pc.swaptarget:hover .pc-swapsym {
+  opacity: 1;
+}
+
+@media (hover:none) {
+  .ocards .pc.swaptarget .pc-swapsym {
+    opacity: .85;
+    background: rgba(13,18,28,.25);
+  }
+}
+
+/* ingen navnelinje over modspillerens kort */
+
+.opp .oh {
+  display: none !important;
+}
+
+/* forsiden bred igen (knapperne er lavere, så forsiden ikke skrumpes) */
+
+.home-buttons {
+  max-width: 430px !important;
+  gap: 10px !important;
+}
+
+
+/* ========================================================================
+   DEL 20 · MENUKNAPPERNE PÅ FORSIDEN
+   ======================================================================== */
+
+/* menuknapper i dæmpet rød med smal guldkant og mørk indre skygge */
+
+.home-buttons .btn {
+  border: 1.5px solid #a8844c !important;
+  border-image: none !important;
+  border-radius: 1px !important;
+  background: repeating-linear-gradient(135deg,rgba(255,240,220,.018) 0 2px,transparent 2px 5px),linear-gradient(180deg,#6a2119 0%,#5a1a14 50%,#47140f 100%) !important;
+  background-clip: border-box !important;
+  box-shadow: inset 0 0 0 1px #1e0907,inset 0 0 16px 5px rgba(12,4,2,.72),0 2px 8px rgba(0,0,0,.5) !important;
+  color: #e6cd93 !important;
+  font-family: var(--display) !important;
+  font-weight: 700 !important;
+  font-size: 1.22rem !important;
+  letter-spacing: .05em !important;
+  text-shadow: 0 1px 1px #1a0605,0 0 6px rgba(0,0,0,.5);
+  padding-block: clamp(7px,1.5vh,12px) !important;
+  filter: none !important;
+  transition: background .15s,border-color .15s,box-shadow .15s;
+}
+
+.home-buttons .btn.gold {
+  border-color: #bf9a58 !important;
+}
+
+.home-buttons .btn:hover {
+  background: repeating-linear-gradient(135deg,rgba(255,240,220,.022) 0 2px,transparent 2px 5px),linear-gradient(180deg,#7a281e 0%,#682019 50%,#521812 100%) !important;
+  border-color: #c9a86a !important;
+  box-shadow: inset 0 0 0 1px #1e0907,inset 0 0 14px 4px rgba(12,4,2,.6),0 2px 10px rgba(0,0,0,.55) !important;
+  transform: none;
+}
+
+.home-buttons .btn small {
+  font-family: var(--serif) !important;
+  font-weight: 500 !important;
+  font-size: .76em !important;
+  letter-spacing: 0 !important;
+  color: #dcc7a6 !important;
+  text-shadow: 0 1px 1px #000;
+}
+
+.home-buttons .ic {
+  color: #d9bd84 !important;
+}
+
+
+/* ========================================================================
+   DEL 21 · KORTENES SKYGGE OG LYDKNAPPEN
+   ======================================================================== */
+
+/* Kort: mørk indre skygge som på menuknapperne (rammen og den lyse forside) */
+
+.pc {
+  box-shadow: inset 0 0 0 .08em #1e0907,inset 0 0 .9em .25em rgba(12,4,2,.72),0 .25em .8em rgba(0,0,0,.5);
+}
+
+.pc-in {
+  box-shadow: inset 0 0 0 .06em rgba(30,9,7,.45),inset 0 0 1.4em .25em rgba(70,40,15,.38);
+}
+
+/* sættets navn nederst på kortet */
+
+.pc-set.plain {
+  color: var(--tc,#5a4326);
+  opacity: .85;
+}
+
+/* Lydknap på forsiden: lille, diskret messingring; tydeligere ved hover */
+
+.home-sound {
+  position: absolute;
+  bottom: clamp(16px,2.8vh,24px);
+  right: clamp(16px,2.2vw,26px);
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #c9ad78;
+  border: 1px solid rgba(168,132,76,.55);
+  background: rgba(20,12,8,.35);
+  box-shadow: inset 0 0 6px rgba(0,0,0,.45);
+  opacity: .7;
+  transition: opacity .2s,color .2s,border-color .2s,background .2s;
+}
+
+.home-sound:hover,
+.home-sound:focus-visible {
+  opacity: 1;
+  color: #ead39f;
+  border-color: #c9a86a;
+  background: rgba(74,21,15,.6);
+}
+
+.home-sound:focus-visible {
+  outline: 2px solid #e6cd93;
+  outline-offset: 3px;
+}
+
+.home-sound svg {
+  width: 19px;
+  height: 19px;
+  display: block;
+  filter: drop-shadow(0 1px 1px #000);
+}
+
+.home-sound .spk {
+  fill: currentColor;
+}
+
+.home-sound .waves,
+.home-sound .mute {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.home-sound .waves {
+  display: none;
+}
+
+.home-sound.on .waves {
+  display: inline;
+}
+
+.home-sound.on .mute {
+  display: none;
+}
+
+.logo .logo-sub {
+  display: inline-block;
+  margin-top: .35em;
+  font-size: .42em;
+  letter-spacing: .02em;
+  font-style: italic;
+  opacity: .9;
+}
+
+
+/* ========================================================================
+   DEL 22 · KORTSÆT MED EGEN BAGGRUND ELLER SNE
+   Bruges, når en sætfil har background eller snow: true.
+   ======================================================================== */
+
+/* Kortsæt med egen baggrund (background i sætfilen) */
+
+body.set-bg #scr-game .table {
+  background: linear-gradient(180deg,rgba(8,22,34,.42),rgba(8,22,34,.12) 48%,rgba(8,22,34,.3)),var(--set-bg) center/cover,#233b4b !important;
+}
+
+body.set-bg #scr-game .table::before {
+  background: none !important;
+  display: none !important;
+}
+
+/* Kortsæt med sne (snow: true i sætfilen) */
+
+#set-snow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  display: none;
+}
+
+body.set-bg #scr-game .table,
+body.set-snow #scr-game .table {
+  z-index: 0;
+}
+
+body.set-snow #scr-game .table>#set-snow {
+  display: block;
+}
+
+
+/* ========================================================================
+   DEL 23 · "DET ER DIN TUR"-BOKSEN
+   Vises kort, når turen går videre (2+ spillere). Se js/tur-boks.js.
+   ======================================================================== */
+
+#turn-note {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 80;
+  width: auto;
+  min-width: min(340px,86vw);
+  max-width: min(520px,92vw);
+  text-align: center;
+  cursor: pointer;
+  transform: translate(-50%,-50%) scale(.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease,transform .25s ease;
+  animation: none;
+}
+
+#turn-note.show {
+  opacity: 1;
+  transform: translate(-50%,-50%) scale(1);
+  pointer-events: auto;
+}
+
+#turn-note .t1 {
+  margin: 0;
+}
+
+#turn-note .t2 {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #turn-note {
+    transition: none;
+  }
+}
+
+
+/* ========================================================================
+   DEL 24 · INFOBOKS VED KORTENE
+   Boksen med kortets beskrivelse, der dukker op til højre for et kort ved
+   hover (mus) eller langt tryk (touch). Koden ligger i js/kort-info.js.
+   Rammen får kortets egne farver (--fr, --fr2), så den ligner kortet.
+   ======================================================================== */
+
+#kort-info {
+  display: none;
+  position: fixed;
+  inset: auto;
+  left: 0;
+  top: 0;
+  margin: 0;
+  width: 300px;
+  max-width: calc(100vw - 16px);
+  padding: 7px;
+  border: 0;
+  border-radius: 12px;
+  overflow: visible;
+  color: #382719;
+  background: radial-gradient(circle,rgba(255,255,255,.09) 1px,transparent 1.3px) 0 0/10px 10px,linear-gradient(160deg,var(--fr,#364d47),var(--fr2,#233733));
+  box-shadow: 0 12px 30px rgba(0,0,0,.6);
+  pointer-events: none;
+  z-index: 2147483000;
+}
+
+#kort-info.vis {
+  display: block;
+}
+
+/* Den tynde guldlinje i rammen, som på kortene */
+#kort-info::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(217,168,66,.75);
+  pointer-events: none;
+}
+
+#kort-info .ki-in {
+  position: relative;
+  padding: 12px 15px;
+  border: 2px solid #c9a24a;
+  border-radius: 8px;
+  background: var(--vellum);
+}
+
+#kort-info p {
+  margin: 0;
+  font: 500 1.02rem/1.42 var(--serif);
+}
+
+#kort-info .ki-ekstra {
+  margin-top: 8px;
+  font-style: italic;
+  color: #4f3a28;
+}
+
+#kort-info .ki-ekstra:empty {
+  display: none;
+}
+
+/* Langt tryk på et kort må ikke åbne telefonens "gem billede"-menu */
+.pc[data-zoom],
+.pc[data-zoom] img {
+  -webkit-touch-callout: none;
+}
+
+/* (?)-vinduet viser nu kun kilderne: de tomme felter til årstal og
+   beskrivelse fylder ikke noget */
+#info-dialog .info-meta:empty,
+#info-dialog .info-desc:empty {
+  display: none;
+}
+
+
+/* ========================================================================
+   DEL 25 · SÆTTETS NAVN PÅ KORTENE
+   Teksten nederst på kortet (fx "HISTORIEKANON"). Størrelsen er en andel af
+   kortets skriftstørrelse, så den følger kortet. Før: .42em.
+   ======================================================================== */
+
+.pc .pc-set {
+  font-size: .56em;
+  letter-spacing: .07em;
+  line-height: 1.1;
+}

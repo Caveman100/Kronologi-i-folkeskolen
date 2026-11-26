@@ -2,6 +2,7 @@
 registerSet({
   id: "classic",
   name: "Historie",
+  quizIcon: "H", // seglet i Quiz (js/quiz.js)
   menuStyle: "home", // knappen i "Vælg kortsæt" får samme stil som knapperne på startskærmen
   description: "Store linjer i historien",
   // Kort der ligger på bordet fra start:

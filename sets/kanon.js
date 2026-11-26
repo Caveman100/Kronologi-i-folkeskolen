@@ -7,6 +7,7 @@
 registerSet({
   id: "kanon",
   name: "Historiekanon",
+  quizIcon: "K", // seglet i Quiz (js/quiz.js)
   menuStyle: "home", // knappen i "Vælg kortsæt" får samme stil som knapperne på startskærmen
   description: "De 30 punkter i historiekanonen",
   startCards: ["solvognen", "kalmarunionen", "grundloven", "berlinmuren"],
