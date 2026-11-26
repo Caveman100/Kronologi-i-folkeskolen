@@ -34,9 +34,9 @@
       <h1 class="logo logo-title"><span>Før eller efter?</span></h1>
       <p class="tagline"></p>
       <div class="home-buttons">
-        <button class="btn gold big" data-screen="quiz"><span class="ic" aria-hidden="true">✦</span> Quiz<small>Mester historien</small></button><button class="link-btn" data-screen="settings">Indstillinger</button>
+        <button class="btn gold big" data-screen="quiz"><span class="ic" aria-hidden="true">✦</span> Start spillet<small>Mester kronologien</small></button><button class="link-btn" data-screen="settings">Indstillinger</button>
         <button class="btn big" id="home-play"><span class="ic" aria-hidden="true">♜</span> Duel<small id="home-count">2 spillere på samme skærm</small></button>
-        <button class="btn big" data-go="host"><span class="ic" aria-hidden="true">⚜</span> Opret online spil<small>Få en kode og inviter venner</small></button>
+        <button class="btn big" data-go="host"><span class="ic" aria-hidden="true">⚜</span> Opret spil online<small>Få en kode og inviter venner</small></button>
         <button class="btn big" data-go="join"><span class="ic" aria-hidden="true">⚿</span> Deltag med kode<small>Tilslut et online spil</small></button>
       </div>
       <button class="link-btn" onclick="document.getElementById('wiki-credits').showModal()">Kilder</button> <button class="link-btn" data-open="rules">Sådan spiller man</button>
@@ -52,6 +52,10 @@
     <h2>Indstillinger</h2>
     <div class="label">Duel</div>
     <button class="btn wide settings-players" data-go="local">Vælg spillere<small id="settings-count"></small></button>
+    <div class="settings-hand" id="settings-hand-duel"></div>
+    <div class="label">Mester kronologien</div>
+    <div class="settings-sets" id="settings-quizmode"></div>
+    <div class="settings-hand" id="settings-hand-quiz"></div>
     <div class="label">Ekstra kortsæt</div>
     <div class="settings-sets" id="settings-sets"></div>
   </div>
@@ -81,11 +85,9 @@
     <div class="label">Højeste score</div>
     <div class="quiz-best" id="quizset-best"></div>
     <div class="quiz-actions">
-      <button class="btn gold quiz-play" id="quiz-play">Spil</button>
+      <button class="btn gold quiz-play" id="quiz-play">Spil<small id="quiz-play-mode"></small></button>
       <div class="quiz-actions-row">
-        <button class="btn" id="quiz-survive">∞ Overlevelse</button>
         <button class="btn" id="quiz-learn">Lær</button>
-        <button class="btn" id="quiz-misses" hidden>Øv fejl</button>
       </div>
     </div>
   </div>
@@ -94,7 +96,7 @@
   <div class="panel setup quiz-panel learn-panel">
     <button class="back" data-screen="quizset">← Tilbage</button>
     <h2 id="learn-title"></h2>
-    <p class="quiz-meta">Alle kortene i rigtig rækkefølge. Tryk på et kort for at læse om det.</p>
+    <p class="quiz-meta">Alle kortene i rigtig rækkefølge. Tryk på et kort for at se kilderne.</p>
     <ol class="learn-list" id="learn-list"></ol>
     <div class="quiz-actions"><button class="btn gold quiz-play" id="learn-play">Spil quizzen</button></div>
   </div>

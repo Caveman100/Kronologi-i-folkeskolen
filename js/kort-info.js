@@ -48,13 +48,12 @@
   var tryk = null;       // igangværende touch-tryk: {id, x, y, kort}
   var slugKlik = false;  // efter et langt tryk må slip-klikket ikke vælge kortet
 
-  // Det element, boksen hører til: et kort med forside, der kan slås op (ikke
-  // kortet inde i (?)-dialogen), eller en hel række på Lær-siden, hvor rækken
-  // er det, man peger på (kortet selv tager ikke imod musen der).
+  // Det element, boksen hører til: et kort med forside, der kan slås op. Ikke
+  // kortet inde i (?)-dialogen, og ikke på Lær-siden, hvor teksten allerede står.
   function kortUnder(el) {
     if (!el || !el.closest) return null;
-    var anker = el.closest("#learn-list .learn-row") || el.closest(".pc[data-zoom]");
-    if (!anker || anker.closest("#info-dialog")) return null;
+    var anker = el.closest(".pc[data-zoom]");
+    if (!anker || anker.closest("#info-dialog,#learn-list")) return null;
     var pc = kortI(anker);
     return pc && findKort(pc.dataset.zoom) ? anker : null;
   }
@@ -83,7 +82,7 @@
     try { if (boks.matches(":popover-open")) boks.hidePopover(); } catch (e) {}
   }
 
-  // Til højre for kortet (Lær: rækken); er der ikke plads, så til venstre; ellers over/under.
+  // Til højre for kortet; er der ikke plads, så til venstre; ellers over/under.
   function placer() {
     if (!aktivt) return;
     var r = aktivt.getBoundingClientRect(), w = boks.offsetWidth, h = boks.offsetHeight, luft = 10, kant = 8;

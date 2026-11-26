@@ -11,7 +11,10 @@
    Sæt med menu: false er ikke med.
 
    Skærmene: scr-quiz (kategorier) → scr-quizcat (quizzer i en kategori)
-   → scr-quizset (quizsiden med Spil, Overlevelse, Lær og højeste score).
+   → scr-quizset (quizsiden med Spil, Lær og højeste score).
+   "Spil" starter den quiztilstand, der er valgt under Indstillinger:
+   Mestring (tilstand A) eller Overlevelse (B). "Øv fejl" tilbydes kun på
+   slutskærmen lige efter et spil med fejl.
    En kategori med kun én quiz springer direkte til quizsiden.
 
    Scorerne gemmes i browseren (localStorage) under "htl-quiz-<sæt-id>":
@@ -67,6 +70,36 @@
     var ids = getScore(setId).m || [], deck = {};
     Sets.deckCards(setId).forEach(function (c) { deck[c.id] = 1; });
     return ids.filter(function (id) { return deck[id]; });   // kort, der er fjernet fra sættet, springes over
+  }
+
+  /* ---- Quiztilstand: "mestring" eller "overlevelse" ---- */
+  // Valget gemmes i browseren; standarden står i indstillinger.js (quizTilstand).
+  var MODES = {
+    mestring: { name: "Mestring", desc: "3 forsøg pr. kort. Nå 100 % rigtige." },
+    overlevelse: { name: "∞ Overlevelse", desc: "Én fejl, og det er slut. Hvor langt kan du nå?" }
+  };
+  function quizMode() {
+    var m = null;
+    try { m = localStorage.getItem("htl-quizTilstand"); } catch (e) {}
+    if (!MODES[m]) m = (window.EPOKE_INDSTILLINGER || {}).quizTilstand;
+    return MODES[m] ? m : "overlevelse";
+  }
+  function setQuizMode(m) { try { localStorage.setItem("htl-quizTilstand", m); } catch (e) {} }
+
+  /* ---- Kort på hånden: "duel" eller "quiz" (Mestring og Overlevelse) ---- */
+  // Valget gemmes i browseren som "htl-haand-duel" / "htl-haand-quiz";
+  // standarden står i indstillinger.js (kortPaaHaanden / quizKortPaaHaanden).
+  function handMax() { return (window.EPOKE_INDSTILLINGER || {}).maksKortPaaHaanden || 10; }
+  function handSize(kind) {
+    var I = window.EPOKE_INDSTILLINGER || {}, n = null;
+    try { n = parseInt(localStorage.getItem("htl-haand-" + kind), 10); } catch (e) {}
+    if (!(n >= 1)) n = kind === "duel" ? (I.kortPaaHaanden ?? 5) : (I.quizKortPaaHaanden ?? I.overlevelseKortPaaHaanden ?? 3);
+    return Math.max(1, Math.min(handMax(), n));
+  }
+  function setHandSize(kind, n) {
+    n = Math.max(1, Math.min(handMax(), n));
+    try { localStorage.setItem("htl-haand-" + kind, String(n)); } catch (e) {}
+    return n;
   }
 
   /* ---- Quizzer og kategorier ---- */
@@ -132,19 +165,19 @@
     var d = Sets.get(setId), s = getScore(setId), total = cardCount(setId); curSet = setId;
     $("#quizset-title").textContent = d.name;
     $("#quizset-meta").innerHTML = '<span class="quiz-count">' + total + ' kort</span>' + (d.description ? esc(d.description) : "");
-    var a = s.a, b = s.b;
-    $("#quizset-best").innerHTML =
-      '<div class="qb-row"><span class="qb-mode">Spil</span>' +
+    // Kun højeste score i den valgte quiztilstand
+    var a = s.a, b = s.b, mode = quizMode();
+    $("#quizset-best").innerHTML = mode === "mestring"
+      ? '<div class="qb-row"><span class="qb-mode">Mestring</span>' +
         (a ? '<span class="qb-main">' + bar({ right: a.right / a.total, exact: a.exact / a.total }) +
              '<span class="qb-nums"><b>' + pct(a.right / a.total) + ' %</b> · ' + a.right + ' af ' + a.total + ' rigtige · ★ ' + a.exact + ' præcise · ' + time(a.ms) + '</span></span>'
-           : '<span class="qb-none">Ikke spillet endnu</span>') + '</div>' +
-      '<div class="qb-row"><span class="qb-mode">∞ Overlevelse</span>' +
+           : '<span class="qb-none">Ikke spillet endnu</span>') + '</div>'
+      : '<div class="qb-row"><span class="qb-mode">∞ Overlevelse</span>' +
         (b ? '<span class="qb-main"><span class="qb-frac"><b>' + b.placed + '</b>/' + b.total + '</span><span class="qb-nums">kort i træk uden fejl</span></span>'
            : '<span class="qb-none">Ikke spillet endnu</span>') + '</div>';
+    $("#quiz-play-mode").textContent = MODES[mode].name;
     var single = categories()[curCat] && categories()[curCat].sets.length === 1;
     $("#quizset-back").dataset.screen = single || curCat == null ? "quiz" : "quizcat";
-    var m = misses(setId), mb = $("#quiz-misses");
-    mb.hidden = !m.length; mb.textContent = "Øv fejl (" + m.length + ")";
   }
 
   /* ---- Lær: hele tidslinjen i rigtig rækkefølge ---- */
@@ -166,8 +199,28 @@
     if (G) requestAnimationFrame(function () { G.fit($("#learn-list")); });
   }
 
-  /* ---- Indstillinger: valgfrie kortsæt (fx Jul) slås til og fra ---- */
+  /* ---- Indstillinger: kort på hånden, quiztilstand og valgfrie kortsæt (fx Jul) ---- */
+  function renderHand(kind) {
+    var n = handSize(kind);
+    $("#settings-hand-" + kind).innerHTML =
+      '<span class="sh-label"><strong>Kort på hånden</strong><small>' + (kind === "duel" ? "Hver spiller starter med så mange kort" : "Gælder både Mestring og Overlevelse") + '</small></span>' +
+      '<button type="button" data-hand="' + kind + '" data-d="-1" aria-label="Færre kort"' + (n <= 1 ? " disabled" : "") + '>−</button>' +
+      '<output aria-live="polite">' + n + '</output>' +
+      '<button type="button" data-hand="' + kind + '" data-d="1" aria-label="Flere kort"' + (n >= handMax() ? " disabled" : "") + '>+</button>';
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-hand]");
+    if (!b) return;
+    setHandSize(b.dataset.hand, handSize(b.dataset.hand) + Number(b.dataset.d));
+    renderHand(b.dataset.hand);
+  });
   function renderSettings() {
+    renderHand("duel"); renderHand("quiz");
+    var cur = quizMode();
+    $("#settings-quizmode").innerHTML = Object.keys(MODES).map(function (m) {
+      return '<label class="settings-set"><input type="radio" name="quizmode" data-quizmode="' + m + '"' + (m === cur ? " checked" : "") + '>' +
+        '<span><strong>' + esc(MODES[m].name) + '</strong><small>' + esc(MODES[m].desc) + '</small></span></label>';
+    }).join("");
     var ids = Sets.optionalIds();
     $("#settings-sets").innerHTML = ids.length ? ids.map(function (id) {
       var d = Sets.get(id);
@@ -178,6 +231,8 @@
   document.addEventListener("change", function (e) {
     var t = e.target.closest && e.target.closest("[data-set-toggle]");
     if (t) Sets.setOn(t.dataset.setToggle, t.checked);
+    var q = e.target.closest && e.target.closest("[data-quizmode]");
+    if (q && q.checked) setQuizMode(q.dataset.quizmode);
   });
 
   /* ---- Fremgang øverst i Quiz: gennemsnittet af alle quizzer ---- */
@@ -207,12 +262,15 @@
   function openSet(setId) { curSet = setId; show("quizset"); }
 
 
-  function startGame(fn) { if (curSet && window.EpokeGame) fn(window.EpokeGame); }
-  $("#quiz-play").onclick = function () { startGame(function (G) { G.startQuiz(curSet); }); };
-  $("#quiz-survive").onclick = function () { startGame(function (G) { G.startSurvival(curSet); }); };
+  // Starter den quiztilstand, der er valgt under Indstillinger
+  function startGame() {
+    if (!curSet || !window.EpokeGame) return;
+    if (quizMode() === "overlevelse") window.EpokeGame.startSurvival(curSet);
+    else window.EpokeGame.startQuiz(curSet);
+  }
+  $("#quiz-play").onclick = startGame;
   $("#quiz-learn").onclick = function () { show("learn"); };
-  $("#learn-play").onclick = function () { startGame(function (G) { G.startQuiz(curSet); }); };
-  $("#quiz-misses").onclick = function () { var m = misses(curSet); if (m.length) startGame(function (G) { G.startQuiz(curSet, { only: m }); }); };
+  $("#learn-play").onclick = startGame;
 
   document.addEventListener("click", function (e) {
     var l = e.target.closest("#learn-list [data-learn]");
@@ -230,5 +288,5 @@
   });
 
   // Det, spillet (js/spil.js) og test kan bruge:
-  window.EpokeQuiz = { scoreKey: scoreKey, getScore: getScore, saveA: saveA, saveB: saveB, setMisses: setMisses, misses: misses, bar: bar, cardCount: cardCount, categories: categories, show: show, openSet: openSet, get current() { return curSet; } };
+  window.EpokeQuiz = { quizMode: quizMode, setQuizMode: setQuizMode, handSize: handSize, setHandSize: setHandSize, scoreKey: scoreKey, getScore: getScore, saveA: saveA, saveB: saveB, setMisses: setMisses, misses: misses, bar: bar, cardCount: cardCount, categories: categories, show: show, openSet: openSet, get current() { return curSet; } };
 })();

@@ -61,7 +61,8 @@ window.EPOKE_INDSTILLINGER = {
 
   /* ----- Nyt spil ----- */
 
-  // Antal kort, hver spiller starter med på hånden.
+  // Antal kort, hver spiller starter med på hånden i Duel (standard; spilleren
+  // kan selv ændre det under "Indstillinger" på forsiden, og browseren husker det).
   kortPaaHaanden: 5,
 
   // Antal byttekort pr. spiller (bruges kun med 2 eller flere spillere).
@@ -70,12 +71,22 @@ window.EPOKE_INDSTILLINGER = {
   // Må man svare med et årstal på kortet? (true = ja, false = nej)
   gaetAarstal: true,
 
-  // Antal kort på hånden i "Overlevelse" (spil alene, én fejl og det er slut).
-  overlevelseKortPaaHaanden: 3,
+  // Antal kort på hånden i Quiz, både Mestring og Overlevelse (standard;
+  // spilleren kan selv ændre det under "Indstillinger" på forsiden).
+  quizKortPaaHaanden: 3,
+
+  // Hvor mange kort man højst kan vælge at have på hånden under "Indstillinger".
+  maksKortPaaHaanden: 10,
 
   // Antal forsøg pr. kort i Quiz (tilstanden "Spil"). Efter sidste forkerte
   // forsøg lyser den rigtige plads grønt.
   quizForsoeg: 3,
+
+  // Hvilken slags quiz "Spil" starter, indtil spilleren selv vælger under
+  // "Indstillinger" på forsiden (browseren husker valget):
+  //   "mestring"    = 3 forsøg pr. kort, nå 100 % (scoren tæller i "Din fremgang")
+  //   "overlevelse" = én fejl, og det er slut
+  quizTilstand: "overlevelse",
 
   /* ----- Kortsæt ----- */
 

@@ -32,6 +32,15 @@
 .settings-set input { width: 22px; height: 22px; accent-color: #6a2119; flex: none; }
 .settings-set strong { display: block; font: 400 1.2rem/1.1 var(--fell); color: #4a2419; }
 .settings-set small { font: 500 .88rem var(--serif); color: #65503b; }
+/* Kort på hånden: − tal + */
+.settings-hand { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 10px 14px; border: 1px solid #c9a24a88; border-radius: 6px; background: #fff6de66; }
+.settings-hand .sh-label { flex: 1; }
+.settings-hand .sh-label strong { display: block; font: 400 1.2rem/1.1 var(--fell); color: #4a2419; }
+.settings-hand .sh-label small { font: 500 .88rem var(--serif); color: #65503b; }
+.settings-hand button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid #997544; background: #4a3020; color: #f7e6c2; font: 700 1.3rem/1 var(--serif); cursor: pointer; }
+.settings-hand button:hover:not(:disabled) { background: #6a2119; }
+.settings-hand button:disabled { opacity: .35; cursor: default; }
+.settings-hand output { min-width: 1.6em; text-align: center; font: 700 1.5rem var(--serif); color: #4a2419; }
 
 /* ── Quizpaneler ── */
 .quiz-panel { width: min(640px,100%); }
@@ -125,6 +134,9 @@
 
 .quiz-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; }
 .quiz-play { min-width: 12em; padding: 14px 34px; font-size: 1.3rem; }
+/* Spil-knappen viser den valgte quiztilstand (Mestring / Overlevelse) med lille skrift */
+.quiz-play { flex-direction: column; gap: 2px; }
+.quiz-play small { display: block; font: 500 .8rem var(--serif); letter-spacing: 0; text-transform: none; opacity: .85; }
 .quiz-actions-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .quiz-actions-row .btn { min-width: 9em; }
 
@@ -209,7 +221,7 @@ body.quiz-mode #hand-label > small { display: none; }
 .learn-card .pc { --w: 96px; }
 .learn-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .learn-text b { font: 400 1.15rem/1.15 var(--fell); color: #4a2419; }
-.learn-text span { font: 500 .92rem/1.3 var(--serif); color: #453022; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.learn-text span { font: 500 .92rem/1.3 var(--serif); color: #453022; }   /* hele teksten vises */
 
 @media (max-width: 520px) {
   .learn-row { grid-template-columns: 4.6em 14px 1fr; }

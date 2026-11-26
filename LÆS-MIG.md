@@ -61,7 +61,7 @@ Går noget galt, så tryk **F12** og se fanen **Console**. Fejl står med rødt.
 | ændre hvor længe resultatet vises efter et svar | `indstillinger.js` | `visResultatMs` (millisekunder) |
 | ændre hvor længe resultatet vises, når man spiller alene (Quiz, Overlevelse) | `indstillinger.js` | `visResultatAleneMs` (millisekunder; tast eller klik går videre før) |
 | ændre hvor længe "Det er turen til ..." vises | `indstillinger.js` | `turBoksMs` |
-| give spillerne flere eller færre kort | `indstillinger.js` | `kortPaaHaanden`, `overlevelseKortPaaHaanden` |
+| give spillerne flere eller færre kort | `indstillinger.js` (standarden; spillerne kan selv vælge under Indstillinger) | `kortPaaHaanden` (Duel), `quizKortPaaHaanden` (Mestring og Overlevelse), `maksKortPaaHaanden` |
 | ændre antallet af byttekort | `indstillinger.js` | `byttekort` |
 | slå årstalsgæt fra | `indstillinger.js` | `gaetAarstal: false` |
 | ændre antal forsøg pr. kort i Quiz | `indstillinger.js` | `quizForsoeg` |
@@ -108,7 +108,8 @@ Forsiden har knapperne **Quiz**, **Indstillinger**, **Duel** (2 spillere på sam
 **Jul og andre ekstra kortsæt:** under **Indstillinger** på forsiden kan Jul slås til og fra. Standarden står i `indstillinger.js` under `valgfrieKortsaet: { jul: false }`. Skriv `true` for at vise Jul fra start. Browseren husker spillerens eget valg.
 
 - En quiz er ét kortsæt. Kortsæt med samme `quizCategory` (fx `"Alinea"`) samles i én kategori; ellers er sættet sin egen kategori. `quizIcon` er tegnet i det runde segl.
-- På quizsiden: **Spil** (ét kort ad gangen, 3 forsøg, kun første forsøg tæller), **Overlevelse** (én fejl og det er slut), **Lær** (alle kort i rækkefølge) og **Øv fejl** (kun de kort, man fejlede sidst).
+- På quizsiden: **Spil** og **Lær** (alle kort i rækkefølge med hele teksten). **Spil** starter den quiztype, der er valgt under **Indstillinger** på forsiden: **Mestring** (3 forsøg pr. kort, kun første forsøg tæller) eller **Overlevelse** (én fejl og det er slut). Standarden er Overlevelse og står i `indstillinger.js` (`quizTilstand`).
+- **Øv fejl** (kun de kort, man fejlede) tilbydes på slutskærmen lige efter et spil, hvor man har lavet fejl.
 - Scorerne gemmes i browseren under `htl-quiz-<sæt-id>`. Slet dem i konsollen (F12) med `localStorage.clear()`.
 - Selve reglerne står i `js/spil.js` under overskriften `QUIZ: SPIL (TILSTAND A) OG ØV FEJL`. Alle valgene og de fravalgte alternativer står i `docs/beslutninger-quiz.md`.
 

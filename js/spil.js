@@ -175,7 +175,7 @@ class RelayGuest {
    R = standardindstillinger for et nyt spil (hentes fra indstillinger.js).
    ======================================================================== */
 function Kn(){let t=new URLSearchParams(location.search);return t.get("peerhost")?{host:t.get("peerhost"),port:+t.get("peerport")||9e3,path:t.get("peerpath")||"/",secure:!1,debug:1}:{secure:true,debug:1}}function Er(){let t="";for(let e=0;e<4;e++)t+=Vn[Math.floor(Math.random()*Vn.length)];return t}var st=class{constructor({onOpen:e,onHello:n,onAction:r,onLeave:s,onError:i}){this.h={onOpen:e,onHello:n,onAction:r,onLeave:s,onError:i},this.conns=new Map,this.tries=0,this.open()}open(){this.code=Er(),this.peer=new De(Gn+this.code,Kn()),this.peer.on("open",()=>this.h.onOpen(this.code)),this.peer.on("error",e=>{if(e.type==="unavailable-id"&&this.tries++<5){this.peer.destroy(),this.open();return}e.type!=="peer-unavailable"&&this.h.onError(e)}),this.peer.on("disconnected",()=>{try{this.peer.reconnect()}catch{}}),this.peer.on("connection",e=>{e.on("data",n=>{if(!(!n||typeof n!="object"))if(n.t==="hello"){let r=String(n.pid||e.peer),s=this.conns.get(r);if(s&&s!==e)try{s.close()}catch{}e._pid=r,this.conns.set(r,e),this.h.onHello(r,String(n.name||"G\xE6st").slice(0,18),String(n.avatar||"viking"),e)}else n.t==="act"&&e._pid&&this.h.onAction(e._pid,n.act)}),e.on("close",()=>{e._pid&&this.conns.get(e._pid)===e&&(this.conns.delete(e._pid),this.h.onLeave(e._pid))}),e.on("error",()=>{})})}send(e,n){let r=this.conns.get(e);r&&r.open&&r.send(n)}broadcast(e){for(let[n,r]of this.conns)r.open&&r.send(e(n))}kick(e,n){let r=this.conns.get(e);r&&(r.open&&r.send(n),setTimeout(()=>r.close(),300),this.conns.delete(e))}close(){try{this.peer.destroy()}catch{}}},it=class{constructor(e,n,{onMsg:r,onStatus:s}){this.code=e.toUpperCase(),this.hello=n,this.h={onMsg:r,onStatus:s},this.closed=!1,this.retries=0,this.peer=new De(Kn()),this.peer.on("open",()=>this.connect()),this.peer.on("error",i=>{if(i.type==="peer-unavailable"){this.h.onStatus(this.everOpen?"lost":"notfound"),this.retry();return}this.h.onStatus("error",i)}),this.peer.on("disconnected",()=>{if(!this.closed)try{this.peer.reconnect()}catch{}})}connect(){if(this.closed)return;let e=this.peer.connect(Gn+this.code,{reliable:!0});this.conn=e,e.on("open",()=>{this.everOpen=!0,this.retries=0,e.send({t:"hello",...this.hello}),this.h.onStatus("open")}),e.on("data",n=>this.h.onMsg(n)),e.on("close",()=>{this.closed||(this.h.onStatus("lost"),this.retry())})}retry(){this.closed||this.retries>40||!this.everOpen&&this.retries>=2||(clearTimeout(this.t),this.t=setTimeout(()=>{this.retries++,this.connect()},2e3))}act(e){this.conn&&this.conn.open&&this.conn.send({t:"act",act:e})}close(){this.closed=!0;try{this.peer.destroy()}catch{}}};var te=window.EMBED||{},ot=["jpg","png","webp","jpeg"],pt=new Map;window.__imgOk=t=>pt.set(t.dataset.base,t.dataset.ext);window.__imgErr=t=>{let e=ot.indexOf(t.dataset.ext)+1;e>0&&e<ot.length&&!te[t.dataset.base]?(t.dataset.ext=ot[e],t.src="images/"+t.dataset.base+"."+ot[e]):(pt.set(t.dataset.base,!1),t.remove())};function lt(t,e=""){if(te[t])return`<img class="${e}" alt="" src="${te[t]}">`;let n=pt.get(t);if(n===!1)return"";let r=n||"jpg";return`<img class="${e}" alt="" data-base="${t}" data-ext="${r}" src="images/${t}.${r}" onload="__imgOk(this)" onerror="__imgErr(this)">`}for(let t of["julbaggrund","baggrund","titel","kortbagside","bord","bordplade","sejr","lobby"])te[t]&&document.documentElement.style.setProperty("--img-"+t,`url("${te[t]}")`);var kn=[{id:"viking",e:"\u2694\uFE0F",n:"Viking"},{id:"romer",e:"\u{1F3DB}\uFE0F",n:"Romer"},{id:"farao",e:"\u{1F42A}",n:"Farao"},{id:"ridder",e:"\u{1F6E1}\uFE0F",n:"Ridder"},{id:"opdager",e:"\u{1F9ED}",n:"Opdagelsesrejsende"},{id:"astronaut",e:"\u{1F680}",n:"Astronaut"}],Pr=Object.fromEntries(kn.map(t=>[t.id,t])),Dr=TimelineSets.emojis(),Mr={"Forhistorisk tid":["#3e3020","#9c7a4c"],"Oldtidens Egypten":["#5e4512","#d6ae58"],Antikken:["#4e1f1f","#bf8a5c"],Middelalderen:["#22304e","#7d6d9c"],Ren\u00E6ssancen:["#3c2350","#b37f50"],"Opdagelsernes tid":["#163c58","#5aa3b4"],"Videnskabernes tid":["#18223e","#5a7fb4"],Oplysningstiden:["#30254f","#c4a35c"],"1800-tallet":["#33331f","#9d8d5b"],"1900-tallet":["#1f3434","#7aa0a0"],"2000-tallet":["#152341","#4e8dd4"]},u=t=>document.querySelector(t),v=t=>String(t).replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[e]),E={get:(t,e)=>{try{let n=localStorage.getItem("htl-"+t);return n==null?e:JSON.parse(n)}catch{return e}},set:(t,e)=>{try{localStorage.setItem("htl-"+t,JSON.stringify(e))}catch{}}},je=E.get("pid")||(()=>{let t="p"+Math.random().toString(36).slice(2,10);return E.set("pid",t),t})();function z(t,e,n=""){return`<span class="pdot ${n}" style="--c:${e||"#888"}" aria-hidden="true"></span>`}function pe(t,e=INDST.beskedMs??2600){let n=u("#toast");n.textContent=t,n.classList.add("show"),clearTimeout(n._t),n._t=setTimeout(()=>n.classList.remove("show"),e)}(()=>{let t=new Image;t.onload=()=>document.body.classList.add("has-titel"),t.src=te.titel||"images/titel.jpg"})();(()=>{let t=new Image;t.onload=()=>{pt.set("kortbagside","jpg"),document.querySelectorAll(".cardback").forEach(e=>e.classList.add("hasimg"))},t.src=te.kortbagside||"images/kortbagside.jpg"})();var Me=null,ee=E.get("sound",!1);function ft(){return Me||(Me=new(window.AudioContext||window.webkitAudioContext)),Me.state==="suspended"&&Me.resume(),Me}function L(t,e,n,r="sine",s=.18,i){let a=ft(),o=a.createOscillator(),l=a.createGain();o.type=r,o.frequency.setValueAtTime(t,a.currentTime+e),i&&o.frequency.exponentialRampToValueAtTime(i,a.currentTime+e+n),l.gain.setValueAtTime(0,a.currentTime+e),l.gain.linearRampToValueAtTime(s,a.currentTime+e+.015),l.gain.exponentialRampToValueAtTime(1e-4,a.currentTime+e+n),o.connect(l).connect(a.destination),o.start(a.currentTime+e),o.stop(a.currentTime+e+n+.05)}function A(t){if(ee&&playFile(t))return;if(ee)try{t==="flip"?L(500,0,.12,"triangle",.12,900):t==="ok"?(L(523,0,.18,"triangle"),L(659,.1,.18,"triangle"),L(784,.2,.35,"triangle")):t==="exact"?[523,659,784,1047,1319].forEach((e,n)=>L(e,n*.08,.4,"triangle",.16)):t==="bad"?(L(220,0,.35,"sawtooth",.08,140),L(165,.12,.4,"sine",.14,110)):t==="turn"?(L(392,0,.2,"sine",.12),L(587,.12,.3,"sine",.12)):t==="join"?(L(660,0,.12,"sine",.12),L(880,.1,.18,"sine",.12)):t==="win"?[392,523,659,784,659,784,1047].forEach((e,n)=>L(e,n*.14,.5,"triangle",.15)):t==="tick"&&L(1200,0,.04,"square",.03)}catch{}}function wn(t=90){let e=u("#confetti"),n=["#f3d27e","#d9a842","#e0564a","#4a90d9","#4cb878","#fff","#a66bd6"];for(let r=0;r<t;r++){let s=document.createElement("div");s.className="cf";let i=6+Math.random()*8;s.style.cssText=`left:${Math.random()*100}vw;width:${i}px;height:${i*1.6}px;background:${n[r%n.length]};border-radius:${Math.random()>.5?"50%":"2px"};animation-duration:${2.2+Math.random()*2.2}s;animation-delay:${Math.random()*.6}s`,e.appendChild(s),s.addEventListener("animationend",()=>s.remove())}}function K(t){document.querySelectorAll(".screen").forEach(e=>e.classList.toggle("show",e.id==="scr-"+t))}document.addEventListener("click",t=>{let e=t.target.closest("[data-go]");if(e){me(e.dataset.go);return}let n=t.target.closest("[data-open]");if(n){u("#ov-"+n.dataset.open).classList.add("show");return}let r=t.target.closest("[data-close]");if(r){u("#ov-"+r.dataset.close).classList.remove("show");return}t.target.classList.contains("overlay")&&t.target.id==="ov-rules"&&t.target.classList.remove("show")});function me(t){if(t==="home"){leaveTable(),de(),y=null,k=null,K("home");return}t==="local"&&(qn(),K("local")),t==="host"&&(jr(),K("host")),t==="join"&&($r(),K("join"))}
-var R={hand:INDST.kortPaaHaanden??5,swaps:INDST.byttekort??1,set:TimelineSets.firstId(),bonus:INDST.gaetAarstal??true,showTips:false};
+var R={get hand(){return window.EpokeQuiz?EpokeQuiz.handSize("duel"):INDST.kortPaaHaanden??5},swaps:INDST.byttekort??1,set:TimelineSets.firstId(),bonus:INDST.gaetAarstal??true,showTips:false};
 const deckMenu=u("#deck-menu");
 function chooseDeck(start){
     TimelineSets.buildMenu(deckMenu.querySelector("#deck-options"));
@@ -586,11 +586,11 @@ Ne=function(t,e,n,r){
 };
 function soloPlayer(){const p0=q[0]||{name:"",avatar:"viking"};return [{id:"L0",name:(p0.name||"").trim()||"Spiller 1",avatar:p0.avatar}]}
 function startInfinite(){
-  ft();y="local";re=null;k=Fe({...R,mode:"infinite",hand:INDST.overlevelseKortPaaHaanden??3,swaps:0,bonus:true},soloPlayer());fe=null;K("game");I();
+  ft();y="local";re=null;k=Fe({...R,mode:"infinite",hand:quizHand(),swaps:0,bonus:true},soloPlayer());fe=null;K("game");I();
 }
 /* Overlevelse startet fra en quizside: kortsættet er givet, og rekorden gemmes pr. sæt */
 function startSurvival(setId){
-  ft();y="local";re=null;k=Fe({...R,set:setId,mode:"infinite",hand:INDST.overlevelseKortPaaHaanden??3,swaps:0,bonus:true,fromQuiz:true},soloPlayer());fe=null;K("game");I();
+  ft();y="local";re=null;k=Fe({...R,set:setId,mode:"infinite",hand:quizHand(),swaps:0,bonus:true,fromQuiz:true},soloPlayer());fe=null;K("game");I();
 }
 if(u("#home-infinite"))u("#home-infinite").onclick=()=>chooseDeck(startInfinite);
 function survivalBest(t){const b=t.settings.fromQuiz&&window.EpokeQuiz?window.EpokeQuiz.getScore(t.settings.set).b:null;return b?b.placed:t.settings.fromQuiz?0:E.get("infiniteBest",0)}
@@ -633,13 +633,16 @@ const renderInf=I;I=function(){renderInf();try{infiniteInfo()}catch(e){}};
    og resultatet gemmes ikke som rekord. Skærmene og de gemte scorer: js/quiz.js.
    ======================================================================== */
 const QUIZ_TRIES=INDST.quizForsoeg??3;
+/* antal kort på hånden i Quiz (Mestring og Overlevelse): valgt under Indstillinger */
+function quizHand(){return window.EpokeQuiz?EpokeQuiz.handSize("quiz"):INDST.quizKortPaaHaanden??3}
 function startQuiz(setId,opts){
   opts=opts||{};ft();y="local";re=null;
   let s=Fe({...R,set:setId,mode:"quiz",hand:1,swaps:0,bonus:true,fromQuiz:true,practice:!!opts.only,avoidStart:opts.only},soloPlayer());
   let ids=[...s.players[0].hand,...s.draw];
   if(opts.only){const keep=new Set(opts.only);ids=gr(ids.filter(id=>keep.has(id)));if(!ids.length)return false}
-  s.players[0].hand=[ids.pop()];s.draw=ids;
-  s.quiz={tries:0,tried:[],force:null,results:{},start:Date.now(),end:null,total:ids.length+1,note:null,noteNo:0};
+  const total=ids.length;
+  s.players[0].hand=ids.splice(-Math.min(quizHand(),ids.length));s.draw=ids;s.settings.hand=s.players[0].hand.length;
+  s.quiz={tries:0,tried:[],force:null,card:null,results:{},start:Date.now(),end:null,total,note:null,noteNo:0};
   k=s;fe=null;K("game");I();return true;
 }
 function quizPlace(t,e){
@@ -649,6 +652,8 @@ function quizPlace(t,e){
   const guess=Number.isFinite(e.guess)?Math.round(e.guess):null;
   const slot=e.byYear&&guess!==null?vr(s.timeline,guess):Math.max(0,Math.min(s.timeline.length,e.slot|0));
   const ok=kr(s.timeline,slot,c.year);
+  if(Q.card&&Q.card!==id&&P.hand.includes(Q.card)){Q.note={kind:"lock",title:x[Q.card].title,n:++Q.noteNo};s.ui=Oe();return s}
+  Q.card=id;
   if(Q.force!=null&&!ok){Q.note={kind:"force",n:++Q.noteNo};s.ui=Oe();return s}
   if(!ok){
     if(Q.tried.includes(slot)){Q.note={kind:"same",n:++Q.noteNo};s.ui=Oe();return s}
@@ -667,8 +672,8 @@ function quizPlace(t,e){
 function quizNext(t){
   if(t.phase!=="reveal")return t;
   const s=structuredClone(t),Q=s.quiz,P=s.players[0];
-  Q.tries=0;Q.tried=[];Q.force=null;Q.note=null;
-  if(!P.hand.length&&s.draw.length)P.hand.push(s.draw.pop());
+  Q.tries=0;Q.tried=[];Q.force=null;Q.note=null;Q.card=null;
+  if(P.hand.length<(s.settings.hand||1)&&s.draw.length)P.hand.push(s.draw.pop());
   if(!P.hand.length){s.phase="end";Q.end=Date.now();return s}
   s.turnNo++;s.phase="play";s.last=null;s.ui=Oe();return s;
 }
@@ -714,6 +719,7 @@ function quizInfo(){
     if(n.kind==="retry"){A("bad");pe((n.guess!=null?"Forkert årstal. ":"Forkert plads. ")+"Prøv igen – "+n.left+(n.left===1?" forsøg":" forsøg")+" tilbage.")}
     else if(n.kind==="force"){A("bad");pe("Kortet hører til i det grønne felt. Læg det der.",3600)}
     else if(n.kind==="same")pe("Den plads har du allerede prøvet.");
+    else if(n.kind==="lock"){A("bad");pe("Læg først "+n.title+" færdig.")}
   }
 }
 const renderQuiz=I;I=function(){renderQuiz();try{quizInfo()}catch(e){console.error(e)}};
